@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { loginUser, registerUser } from "../api/user";
 import "../App.css";
-
+import { useNavigate } from "react-router-dom";
 // Simple SVG icons as components (no imports needed)
 const UserIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -73,7 +73,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const passwordStrength = getPasswordStrength(password);
-
+  const navigate = useNavigate();
   const clearMessage = () => {
     setTimeout(() => setMessage({ text: "", type: "" }), 5000);
   };
@@ -134,38 +134,45 @@ export default function Login() {
     }
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    if (!username.trim()) {
-      setMessage({ text: "Username tidak boleh kosong", type: "error" });
-      return;
-    }
-    if (!password.trim()) {
-      setMessage({ text: "Password tidak boleh kosong", type: "error" });
-      return;
-    }
+  if (!username.trim()) {
+    setMessage({ text: "Username tidak boleh kosong", type: "error" });
+    return;
+  }
+  if (!password.trim()) {
+    setMessage({ text: "Password tidak boleh kosong", type: "error" });
+    return;
+  }
 
-    setLoading(true);
-    setMessage({ text: "", type: "" });
+  setLoading(true);
+  setMessage({ text: "", type: "" });
 
-    try {
-      const res = await loginUser({ username, password });
-      setMessage({
-        text: res.message || "Login berhasil! Selamat datang.",
-        type: "success",
-      });
-      clearMessage();
-    } catch (err) {
-      setMessage({
-        text: err?.detail || err?.message || "Username atau password salah",
-        type: "error",
-      });
-      clearMessage();
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const res = await loginUser({ username, password });
+
+    setMessage({
+      text: res.message || "Login berhasil! Selamat datang.",
+      type: "success",
+    });
+
+    localStorage.setItem("user_id", res.user_id);
+
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 1000);
+
+  } catch (err) {
+    setMessage({
+      text: err?.detail || err?.message || "Username atau password salah",
+      type: "error",
+    });
+    clearMessage();
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
