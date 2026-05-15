@@ -1,0 +1,161 @@
+import { useState, useEffect, useRef } from 'react';
+import { Camera, CameraOff, Eye, AlertCircle, CheckCircle2, Minimize2, Maximize2 } from 'lucide-react';
+
+export default function FocusDetectorMini({ isActive, onFocusChange, onDistractionDetected }) {
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [isFocused, setIsFocused] = useState(true);
+  const [hasPermission, setHasPermission] = useState(null);
+  const [error, setError] = useState(null);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [distractionCount, setDistractionCount] = useState(0);
+
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const streamRef = useRef(null);
+  const rafRef = useRef(null);
+  const lastFocusRef = useRef(true);
+
+  useEffect(() => {
+    if (isActive && !isEnabled) startDetection();
+    else if (!isActive && isEnabled) stopDetection();
+  }, [isActive]);
+
+  const startDetection = async () => {
+    try {
+      setError(null);
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' } });
+      streamRef.current = stream;
+      if (videoRef.current) { videoRef.current.srcObject = stream; videoRef.current.play(); }
+      setHasPermission(true); setIsEnabled(true);
+      detectFace();
+    } catch {
+      setError('Tidak bisa mengakses kamera'); setHasPermission(false);
+    }
+  };
+
+  const stopDetection = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    setIsEnabled(false); setIsFocused(true); setDistractionCount(0);
+  };
+
+  const detectFace = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current, canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx || video.readyState !== video.HAVE_ENOUGH_DATA) { rafRef.current = requestAnimationFrame(detectFace); return; }
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const d = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const cx = canvas.width/2, cy = canvas.height/2, r = Math.min(canvas.width, canvas.height)/4;
+    let bri = 0, px = 0, skin = 0;
+    for (let y = cy-r/2; y < cy+r/2; y++) for (let x = cx-r/2; x < cx+r/2; x++) {
+      const i = (Math.floor(y)*canvas.width+Math.floor(x))*4;
+      const [rv,g,b] = [d[i],d[i+1],d[i+2]];
+      bri += (rv+g+b)/3; px++;
+      if (rv>95&&g>40&&b>20&&rv>g&&rv>b&&rv-g>15) skin++;
+    }
+    const focused = (skin/px) > 0.1 && (bri/px) > 30 && (bri/px) < 230;
+    if (focused !== lastFocusRef.current) {
+      setIsFocused(focused); onFocusChange?.(focused);
+      if (!focused) { setDistractionCount(p => p+1); onDistractionDetected?.(); }
+      lastFocusRef.current = focused;
+    }
+    rafRef.current = requestAnimationFrame(detectFace);
+  };
+
+  useEffect(() => () => stopDetection(), []);
+
+  if (!isActive) return null;
+
+  return (
+    <div className="fixed bottom-20 right-4 z-40">
+      {isMinimized ? (
+        <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-3 shadow-2xl">
+          <div className="flex items-center gap-2">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isFocused ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+              {isFocused ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+            </div>
+            <div>
+              <p className="text-slate-400 text-xs">Focus Monitor</p>
+              <p className={`text-sm font-medium ${isFocused ? 'text-emerald-400' : 'text-red-400'}`}>{isFocused ? 'Fokus ✓' : 'Terdistraksi!'}</p>
+            </div>
+            <button onClick={() => setIsMinimized(false)} className="p-1.5 hover:bg-slate-800 rounded-lg transition-colors ml-1">
+              <Maximize2 className="w-3.5 h-3.5 text-slate-400" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden" style={{ width: '260px' }}>
+          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-b border-purple-500/20 px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                <Eye className="w-3.5 h-3.5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-white text-xs font-semibold">Focus Monitor</h3>
+                <p className="text-slate-400 text-[10px]">AI Detection</p>
+              </div>
+            </div>
+            <button onClick={() => setIsMinimized(true)} className="p-1.5 hover:bg-slate-800/50 rounded-lg transition-colors">
+              <Minimize2 className="w-3.5 h-3.5 text-slate-400" />
+            </button>
+          </div>
+
+          <div className="relative bg-slate-950" style={{ aspectRatio: '4/3' }}>
+            <video ref={videoRef} className={`w-full h-full object-cover ${!isEnabled ? 'hidden' : ''}`} playsInline muted />
+            <canvas ref={canvasRef} className="hidden" />
+            {!isEnabled && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center p-4">
+                  <CameraOff className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                  <p className="text-slate-400 text-xs">Kamera tidak aktif</p>
+                  {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+                </div>
+              </div>
+            )}
+            {isEnabled && (
+              <div className="absolute top-2 left-2 right-2">
+                <div className={`px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-xl border ${isFocused ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-red-500/20 border-red-500/40 text-red-300'}`}>
+                  {isFocused ? '✓ Wajah terdeteksi' : '✗ Tidak fokus'}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="px-4 py-3 space-y-1.5">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-400 text-xs">Status</span>
+              <span className={`text-xs font-medium ${isFocused ? 'text-emerald-400' : 'text-red-400'}`}>{isFocused ? 'Fokus' : 'Terdistraksi'}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-400 text-xs">Distraksi</span>
+              <span className="text-xs text-white font-medium">{distractionCount}x</span>
+            </div>
+          </div>
+
+          <div className="px-4 pb-3">
+            <button
+              onClick={isEnabled ? stopDetection : startDetection}
+              className={`w-full py-2 px-3 rounded-xl text-xs font-medium transition-all ${isEnabled ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' : 'bg-gradient-to-br from-purple-500 to-pink-600 text-white hover:shadow-lg'}`}
+            >
+              {isEnabled ? (
+                <span className="flex items-center justify-center gap-1.5"><CameraOff className="w-3.5 h-3.5" /> Stop</span>
+              ) : (
+                <span className="flex items-center justify-center gap-1.5"><Camera className="w-3.5 h-3.5" /> Aktifkan</span>
+              )}
+            </button>
+          </div>
+
+          <div className="px-4 pb-4">
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-2">
+              <p className="text-blue-300/80 text-[10px] text-center">🔒 Data diproses lokal di browser</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
