@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Square, Settings, Target, AlertCircle } from 'lucide-react';
+import { Play, Pause, Square, Settings, Target, AlertCircle, MessageSquare, Layers } from 'lucide-react';
 import MusicPlayer from './MusicPlayer.jsx';
 import SettingsModal from './SettingsModal.jsx';
 import FocusAnimation from './FocusAnimation.jsx';
 import GoalSelector from './GoalSelector.jsx';
 import ModeCarousel from './ModeCarousel.jsx';
 import FocusDetectorMini from './FocusDetectorMini.jsx';
+import Chatbot from './Chatbot.jsx';
+import FlashcardManager from './FlashcardManager.jsx';
 
 export default function Timer() {
   const [mode, setMode] = useState('pomodoro');
@@ -24,6 +26,10 @@ export default function Timer() {
   const [focusProgress, setFocusProgress] = useState(0);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [showFocusWarning, setShowFocusWarning] = useState(false);
+  const [showChatbot, setShowChatbot] = useState(false);
+  const [showFlashcard, setShowFlashcard] = useState(false);
+  const [treeType, setTreeType] = useState(null);       // null = not picked yet
+  const [showTreePicker, setShowTreePicker] = useState(false);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -124,13 +130,27 @@ export default function Timer() {
     }
   };
 
-  const handleStart = () => { setIsRunning(true); setShowFocusWarning(false); };
+  const handleStart = () => {
+    // If no tree picked yet for this session, show picker first
+    if (!treeType && (sessionType === 'focus' || mode !== 'pomodoro')) {
+      setShowTreePicker(true);
+      return;
+    }
+    setIsRunning(true); setShowFocusWarning(false);
+  };
   const handlePause = () => setIsRunning(false);
   const handleStop = () => {
     setIsRunning(false); setFocusProgress(0); setTabSwitchCount(0); setShowFocusWarning(false);
+    setTreeType(null); // reset so next session requires picking again
     if (mode === 'pomodoro') { setTimeLeft(settings.focusDuration * 60); setSessionType('focus'); setCycleCount(0); }
     else if (mode === 'feynman') { setFeynmanStep('learn'); setTimeLeft(30 * 60); }
     else setTimeLeft(20 * 60);
+  };
+  const handleTreePicked = (id) => {
+    setTreeType(id);
+    setShowTreePicker(false);
+    setIsRunning(true);
+    setShowFocusWarning(false);
   };
 
   const formatTime = (s) => `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
@@ -244,7 +264,7 @@ export default function Timer() {
         {/* Focus Animation */}
         {isRunning && (sessionType === 'focus' || mode !== 'pomodoro') && (
           <div className="mb-6">
-            <FocusAnimation progress={focusProgress} />
+            <FocusAnimation progress={focusProgress} treeType={treeType} />
           </div>
         )}
 
@@ -257,6 +277,34 @@ export default function Timer() {
               placeholder="Tulis penjelasan Anda di sini..."
               className="w-full h-28 p-4 bg-slate-700/50 border border-slate-600 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-white placeholder-slate-500 text-sm"
             />
+          </div>
+        )}
+
+        {/* AI Assistant button — Feynman only */}
+        {mode === 'feynman' && isRunning && (
+          <div className="mb-5">
+            <button
+              id="btn-open-chatbot"
+              onClick={() => setShowChatbot(true)}
+              className="w-full py-3 bg-gradient-to-r from-cyan-500/15 to-blue-600/15 border border-cyan-500/30 text-cyan-300 rounded-xl flex items-center justify-center gap-2 hover:from-cyan-500/25 hover:to-blue-600/25 hover:border-cyan-500/50 transition-all text-sm font-medium"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Tanya AI Assistant
+            </button>
+          </div>
+        )}
+
+        {/* Flashcard button — Active Recall only */}
+        {mode === 'active-recall' && (
+          <div className="mb-5">
+            <button
+              id="btn-open-flashcard"
+              onClick={() => setShowFlashcard(true)}
+              className="w-full py-3 bg-gradient-to-r from-purple-500/15 to-pink-600/15 border border-purple-500/30 text-purple-300 rounded-xl flex items-center justify-center gap-2 hover:from-purple-500/25 hover:to-pink-600/25 hover:border-purple-500/50 transition-all text-sm font-medium"
+            >
+              <Layers className="w-4 h-4" />
+              Buka Flashcard
+            </button>
           </div>
         )}
 
@@ -308,6 +356,73 @@ export default function Timer() {
           onSelect={(m) => { setMode(m); setShowGoalSelector(false); }}
           onClose={() => setShowGoalSelector(false)}
         />
+      )}
+      {/* Tree Picker Modal */}
+      {showTreePicker && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-fade-in">
+            <div className="text-center mb-5">
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <span style={{ fontSize: 28 }}>🌱</span>
+              </div>
+              <h3 className="text-white font-bold text-lg">Pilih Pohonmu</h3>
+              <p className="text-slate-400 text-sm mt-1">Pohon akan tumbuh selama sesi fokusmu!</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { id: 'oak',    emoji: '🌳', label: 'Pohon Oak',  desc: 'Kuat & berbuah',  from: 'from-emerald-500/20', to: 'to-green-700/20',   border: 'border-emerald-500/40' },
+                { id: 'sakura', emoji: '🌸', label: 'Sakura',     desc: 'Indah & mekar',   from: 'from-pink-500/20',   to: 'to-rose-600/20',    border: 'border-pink-500/40'    },
+                { id: 'pine',   emoji: '🌲', label: 'Pohon Pinus',desc: 'Kokoh & tegak',   from: 'from-teal-500/20',   to: 'to-emerald-700/20', border: 'border-teal-500/40'    },
+                { id: 'cactus', emoji: '🌵', label: 'Kaktus',     desc: 'Tahan & unik',    from: 'from-lime-500/20',   to: 'to-green-500/20',   border: 'border-lime-500/40'    },
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => handleTreePicked(t.id)}
+                  className={`p-4 bg-gradient-to-br ${t.from} ${t.to} border ${t.border} rounded-2xl flex flex-col items-center gap-2 hover:scale-105 hover:brightness-110 active:scale-95 transition-all duration-150`}
+                >
+                  <span style={{ fontSize: 40, lineHeight: 1 }}>{t.emoji}</span>
+                  <div className="text-center">
+                    <p className="text-white text-sm font-semibold">{t.label}</p>
+                    <p className="text-slate-400 text-xs mt-0.5">{t.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowTreePicker(false)}
+              className="mt-4 w-full py-2.5 bg-slate-800/60 border border-slate-700/40 text-slate-400 rounded-xl text-sm hover:bg-slate-700/60 transition-all"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showChatbot && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-700/50 rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border-b border-cyan-500/20 px-5 py-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                  <MessageSquare className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-white font-bold">AI Study Assistant</h2>
+                  <p className="text-slate-400 text-xs">Asisten belajar Feynman</p>
+                </div>
+              </div>
+              <button onClick={() => setShowChatbot(false)} className="p-2 hover:bg-slate-700/50 rounded-xl transition-colors">
+                <span className="text-slate-400 text-lg leading-none">✕</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden p-4">
+              <Chatbot />
+            </div>
+          </div>
+        </div>
+      )}
+      {showFlashcard && (
+        <FlashcardManager onClose={() => setShowFlashcard(false)} />
       )}
 
       {/* Focus Detector */}

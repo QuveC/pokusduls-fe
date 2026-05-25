@@ -10,6 +10,13 @@ const UserIcon = () => (
   </svg>
 );
 
+const MailIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+  </svg>
+);
+
 const LockIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -40,43 +47,66 @@ const ShieldIcon = () => (
   </svg>
 );
 
-export default function Login() {
+// Password strength calculator
+function getPasswordStrength(password) {
+  if (!password) return { level: 0, label: "" };
+
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 1) return { level: 1, label: "Lemah" };
+  if (score <= 3) return { level: 2, label: "Sedang" };
+  return { level: 3, label: "Kuat" };
+}
+
+export default function Register() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
 
+  const passwordStrength = getPasswordStrength(password);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
+    // Validation
     if (!username.trim()) {
       setMessage({ text: "Username tidak boleh kosong", type: "error" });
       return;
     }
-    if (!password.trim()) {
-      setMessage({ text: "Password tidak boleh kosong", type: "error" });
+    if (!email.trim() || !email.includes("@")) {
+      setMessage({ text: "Masukkan email yang valid", type: "error" });
+      return;
+    }
+    if (password.length < 6) {
+      setMessage({ text: "Password minimal 6 karakter", type: "error" });
       return;
     }
 
     setLoading(true);
     setMessage({ text: "", type: "" });
 
-    // Simulate login (no backend integration yet)
-    await new Promise((r) => setTimeout(r, 800));
+    // Simulate registration (no backend)
+    await new Promise((r) => setTimeout(r, 1000));
 
     setMessage({
-      text: "Login berhasil! Selamat datang.",
+      text: "Registrasi berhasil! Mengalihkan ke halaman login...",
       type: "success",
     });
     setLoading(false);
 
-    // Navigate to dashboard after short delay
+    // Navigate to login page after short delay
     setTimeout(() => {
-      navigate("/dashboard");
-    }, 1000);
+      navigate("/");
+    }, 1500);
   };
 
   return (
@@ -97,11 +127,11 @@ export default function Login() {
               <ShieldIcon />
             </div>
             <h1>PokusDuls</h1>
-            <p>Masuk ke akun Anda</p>
+            <p>Buat akun baru</p>
           </div>
 
           {/* Form */}
-          <form className="login-form" onSubmit={handleLogin}>
+          <form className="login-form" onSubmit={handleRegister}>
             {/* Username */}
             <div className="input-group">
               <span className="input-icon">
@@ -117,6 +147,21 @@ export default function Login() {
               />
             </div>
 
+            {/* Email */}
+            <div className="input-group">
+              <span className="input-icon">
+                <MailIcon />
+              </span>
+              <input
+                id="input-email"
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+            </div>
+
             {/* Password */}
             <div className="input-group">
               <span className="input-icon">
@@ -128,7 +173,7 @@ export default function Login() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -139,6 +184,48 @@ export default function Login() {
                 {showPassword ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
+
+            {/* Password strength indicator */}
+            {password && (
+              <>
+                <div className="password-strength">
+                  <div
+                    className={`bar ${
+                      passwordStrength.level >= 1
+                        ? passwordStrength.level === 1
+                          ? "weak"
+                          : passwordStrength.level === 2
+                          ? "medium"
+                          : "strong"
+                        : ""
+                    }`}
+                  />
+                  <div
+                    className={`bar ${
+                      passwordStrength.level >= 2
+                        ? passwordStrength.level === 2
+                          ? "medium"
+                          : "strong"
+                        : ""
+                    }`}
+                  />
+                  <div
+                    className={`bar ${passwordStrength.level >= 3 ? "strong" : ""}`}
+                  />
+                </div>
+                <span
+                  className={`password-strength-text ${
+                    passwordStrength.level === 1
+                      ? "weak"
+                      : passwordStrength.level === 2
+                      ? "medium"
+                      : "strong"
+                  }`}
+                >
+                  Kekuatan password: {passwordStrength.label}
+                </span>
+              </>
+            )}
 
             {/* Message feedback */}
             {message.text && (
@@ -155,19 +242,16 @@ export default function Login() {
               disabled={loading}
             >
               <span>
-                {loading ? <span className="spinner" /> : "Masuk"}
+                {loading ? <span className="spinner" /> : "Daftar"}
               </span>
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="login-divider">atau</div>
-
           {/* Footer */}
           <div className="login-footer">
             <p>
-              Belum punya akun?{" "}
-              <Link to="/register">Daftar di sini</Link>
+              Sudah punya akun?{" "}
+              <Link to="/">Masuk di sini</Link>
             </p>
           </div>
         </div>
