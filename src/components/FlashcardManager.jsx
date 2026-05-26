@@ -4,7 +4,11 @@ import { X, Plus, FolderOpen, Folder, ChevronLeft, RotateCcw, CheckCircle2, XCir
 const STORAGE_KEY = 'pokus-flashcards';
 
 function loadDecks() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+  try { 
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); 
+  } catch { 
+    return [];
+   }
 }
 function saveDecks(decks) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));

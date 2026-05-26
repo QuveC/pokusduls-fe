@@ -8,6 +8,8 @@ import ModeCarousel from './ModeCarousel.jsx';
 import FocusDetectorMini from './FocusDetectorMini.jsx';
 import Chatbot from './Chatbot.jsx';
 import FlashcardManager from './FlashcardManager.jsx';
+import { completeSession } from '../api/session';
+import { updateStatistics } from '../api/statistics';
 
 export default function Timer() {
   const [mode, setMode] = useState('pomodoro');
@@ -102,14 +104,28 @@ export default function Timer() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [isRunning]);
 
-  const saveSession = () => {
+  const saveSession = async () => {
     const dur = mode === 'pomodoro' ? settings.focusDuration
       : mode === 'feynman' && feynmanStep === 'learn' ? 30
       : mode === 'feynman' && feynmanStep === 'explain' ? 15
       : mode === 'feynman' && feynmanStep === 'review' ? 10 : 20;
+
+    // Simpan ke localStorage (lokal)
     const h = JSON.parse(localStorage.getItem('pokus-history') || '[]');
     h.push({ date: new Date().toISOString(), duration: dur, mode });
     localStorage.setItem('pokus-history', JSON.stringify(h));
+
+    // Kirim ke backend jika user sudah login
+    const userId = parseInt(localStorage.getItem('pokus-user-id'));
+    if (userId) {
+      try {
+        const xpGained = Math.floor(dur * 2); // 2 XP per menit
+        await completeSession({ user_id: userId, duration: dur, method_type: mode });
+        await updateStatistics(userId, { xp_gained: xpGained, session_completed: true });
+      } catch (e) {
+        console.warn('Gagal sync sesi ke server:', e);
+      }
+    }
   };
 
   const handleTimerComplete = () => {

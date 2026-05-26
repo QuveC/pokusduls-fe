@@ -4,7 +4,7 @@ import {
   Minimize2, Maximize2, Smartphone, ArrowLeftRight, UserX, Zap,
 } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:8000';
+const BACKEND_URL = 'http://127.0.0.1:8000/';
 // Kirim frame ke backend setiap 800ms
 const DETECT_INTERVAL_MS = 800;
 

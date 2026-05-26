@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { loginUser } from "../api/user";
 import "../App.css";
 
-// Simple SVG icons as components
 const UserIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -64,24 +64,25 @@ export default function Login() {
     setLoading(true);
     setMessage({ text: "", type: "" });
 
-    // Simulate login (no backend integration yet)
-    await new Promise((r) => setTimeout(r, 800));
+    try {
+      const res = await loginUser({ username, password });
 
-    setMessage({
-      text: "Login berhasil! Selamat datang.",
-      type: "success",
-    });
-    setLoading(false);
+      localStorage.setItem("pokus-token", res.token);
+      localStorage.setItem("pokus-user-id", res.user_id);
 
-    // Navigate to dashboard after short delay
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 1000);
+      setMessage({ text: res.message || "Login berhasil! Selamat datang.", type: "success" });
+
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } catch (err) {
+      const errMsg = err?.detail || err?.message || "Login gagal. Periksa username dan password.";
+      setMessage({ text: errMsg, type: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="login-page-wrapper">
-      {/* Animated background orbs */}
       <div className="login-background">
         <div className="orb" />
         <div className="orb" />
@@ -91,22 +92,15 @@ export default function Login() {
 
       <div className="login-container">
         <div className="login-card">
-          {/* Brand section */}
           <div className="login-brand">
-            <div className="brand-icon">
-              <ShieldIcon />
-            </div>
+            <div className="brand-icon"><ShieldIcon /></div>
             <h1>PokusDuls</h1>
             <p>Masuk ke akun Anda</p>
           </div>
 
-          {/* Form */}
           <form className="login-form" onSubmit={handleLogin}>
-            {/* Username */}
             <div className="input-group">
-              <span className="input-icon">
-                <UserIcon />
-              </span>
+              <span className="input-icon"><UserIcon /></span>
               <input
                 id="input-username"
                 type="text"
@@ -117,11 +111,8 @@ export default function Login() {
               />
             </div>
 
-            {/* Password */}
             <div className="input-group">
-              <span className="input-icon">
-                <LockIcon />
-              </span>
+              <span className="input-icon"><LockIcon /></span>
               <input
                 id="input-password"
                 type={showPassword ? "text" : "password"}
@@ -140,35 +131,24 @@ export default function Login() {
               </button>
             </div>
 
-            {/* Message feedback */}
             {message.text && (
-              <div className={`login-message ${message.type}`}>
-                {message.text}
-              </div>
+              <div className={`login-message ${message.type}`}>{message.text}</div>
             )}
 
-            {/* Submit button */}
             <button
               id="btn-submit"
               type="submit"
               className="login-submit"
               disabled={loading}
             >
-              <span>
-                {loading ? <span className="spinner" /> : "Masuk"}
-              </span>
+              <span>{loading ? <span className="spinner" /> : "Masuk"}</span>
             </button>
           </form>
 
-          {/* Divider */}
           <div className="login-divider">atau</div>
 
-          {/* Footer */}
           <div className="login-footer">
-            <p>
-              Belum punya akun?{" "}
-              <Link to="/register">Daftar di sini</Link>
-            </p>
+            <p>Belum punya akun? <Link to="/register">Daftar di sini</Link></p>
           </div>
         </div>
       </div>

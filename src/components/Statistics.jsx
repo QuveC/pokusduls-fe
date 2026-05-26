@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Clock, Award, Calendar } from 'lucide-react';
+import { TrendingUp, Clock, Award, Calendar, Zap, Flame } from 'lucide-react';
+import { getStatistics } from '../api/statistics';
 
 export default function Statistics() {
   const [sessions, setSessions] = useState([]);
   const [totalMinutes, setTotalMinutes] = useState(0);
   const [weekData, setWeekData] = useState([]);
+  const [apiStats, setApiStats] = useState(null);
+  const [loadingApi, setLoadingApi] = useState(false);
 
   useEffect(() => {
+    // Data lokal dari localStorage (sesi hari ini)
     const history = JSON.parse(localStorage.getItem('pokus-history') || '[]');
     setSessions(history);
     setTotalMinutes(history.reduce((s, h) => s + h.duration, 0));
@@ -21,6 +25,16 @@ export default function Statistics() {
       day: label,
       minutes: history.filter(s => new Date(s.date).toDateString() === date.toDateString()).reduce((a, s) => a + s.duration, 0),
     })));
+
+    // Data global dari backend (XP, streak, dll)
+    const userId = localStorage.getItem('pokus-user-id');
+    if (userId) {
+      setLoadingApi(true);
+      getStatistics(parseInt(userId))
+        .then(data => setApiStats(data))
+        .catch(() => setApiStats(null))
+        .finally(() => setLoadingApi(false));
+    }
   }, []);
 
   const fmt = (m) => { const h = Math.floor(m/60), r = m%60; return h > 0 ? `${h}j ${r}m` : `${r}m`; };
@@ -46,7 +60,7 @@ export default function Statistics() {
 
   return (
     <div className="space-y-5">
-      {/* Stat Cards */}
+      {/* Stat Cards lokal */}
       <div className="grid grid-cols-2 gap-3">
         {statCards.map(({ label, value, Icon, color, bg }) => (
           <div key={label} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
@@ -58,6 +72,57 @@ export default function Statistics() {
           </div>
         ))}
       </div>
+
+      {/* Stats dari backend (XP & Streak) */}
+      {localStorage.getItem('pokus-user-id') && (
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5">
+          <h2 className="text-white font-semibold mb-4">Progress Global</h2>
+          {loadingApi ? (
+            <p className="text-slate-400 text-sm">Memuat data...</p>
+          ) : apiStats ? (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-700/40 rounded-xl p-3 flex items-center gap-3">
+                <div className="w-9 h-9 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-yellow-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400 text-xs">Total XP</p>
+                  <p className="text-white font-bold">{apiStats.total_xp ?? 0}</p>
+                </div>
+              </div>
+              <div className="bg-slate-700/40 rounded-xl p-3 flex items-center gap-3">
+                <div className="w-9 h-9 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                  <Flame className="w-4 h-4 text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400 text-xs">Streak</p>
+                  <p className="text-white font-bold">{apiStats.current_streak ?? 0} hari</p>
+                </div>
+              </div>
+              <div className="bg-slate-700/40 rounded-xl p-3 flex items-center gap-3">
+                <div className="w-9 h-9 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400 text-xs">Total Sesi</p>
+                  <p className="text-white font-bold">{apiStats.total_sessions ?? 0}</p>
+                </div>
+              </div>
+              <div className="bg-slate-700/40 rounded-xl p-3 flex items-center gap-3">
+                <div className="w-9 h-9 bg-sky-500/20 rounded-lg flex items-center justify-center">
+                  <Award className="w-4 h-4 text-sky-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400 text-xs">Fokus Rata-rata</p>
+                  <p className="text-white font-bold">{apiStats.avg_focus_score ?? 0}%</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-slate-500 text-sm">Gagal memuat data global.</p>
+          )}
+        </div>
+      )}
 
       {/* Weekly Chart */}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5">
@@ -119,7 +184,6 @@ export default function Statistics() {
         )}
       </div>
 
-      {/* Clear Data */}
       {sessions.length > 0 && (
         <div className="flex justify-center">
           <button
