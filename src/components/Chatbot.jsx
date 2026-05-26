@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 
-const StudyChatbox = () => {
+const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Sesi unik untuk presentasi
+  // Sesi unik per lifecycle component
   const sessionId = useRef("user_" + Math.random().toString(36).substring(2, 9));
 
   const scrollToBottom = () => {
@@ -42,7 +42,6 @@ const StudyChatbox = () => {
   const handleSend = async (messageText = input) => {
     if (!messageText.trim()) return;
 
-    // Tambah pesan user
     setMessages(prev => [...prev, { sender: 'user', text: messageText }]);
     setInput('');
     setIsTyping(true);
@@ -60,7 +59,7 @@ const StudyChatbox = () => {
   const generateSummary = async () => {
     setIsSummarizing(true);
     setIsTyping(true);
-    const prompt = "Please summarize all my study data... (prompt rahasiamu)";
+    const prompt = "Please summarize all my study data. REMEMBER: DO NOT use any introductory sentences. Start IMMEDIATELY with the data.";
     
     try {
       const aiResponse = await fetchFromN8n(prompt);
@@ -74,21 +73,20 @@ const StudyChatbox = () => {
   };
 
   return (
-    <div className="chat-container" style={{ width: '100%', maxWidth: '600px', height: '80vh', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '20px', overflow: 'hidden' }}>
-      <div className="chat-header" style={{ padding: '15px 20px', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', display: 'flex', justifyContent: 'space-between' }}>
+    <div className="chat-container">
+      <div className="chat-header">
         <span>AI Study Coach</span>
         <button className="summary-btn" onClick={generateSummary} disabled={isSummarizing}>
           {isSummarizing ? "Analyzing..." : "📊 Summarize"}
         </button>
       </div>
 
-      <div className="messages" style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#f8f9fa' }}>
-        {messages.length === 0 && <div className="empty-state" style={{ textAlign: 'center', color: '#999' }}>Halo! Ada yang mau didiskusikan?</div>}
+      <div className="messages">
+        {messages.length === 0 && <div className="empty-state">Halo! Ada yang mau didiskusikan?</div>}
         
         {messages.map((msg, idx) => (
-          <div key={idx} className={`message ${msg.sender}`} style={{ display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start', marginBottom: '16px' }}>
+          <div key={idx} className={`message ${msg.sender}`}>
             <div className="message-content" 
-                 style={{ padding: '12px 16px', borderRadius: '18px', maxWidth: '85%' }}
                  dangerouslySetInnerHTML={{ __html: marked.parse(msg.text) }} 
             />
           </div>
@@ -98,14 +96,13 @@ const StudyChatbox = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="input-container" style={{ padding: '20px', borderTop: '1px solid #eee' }}>
-        <div className="input-wrapper" style={{ display: 'flex', gap: '12px' }}>
+      <div className="input-container">
+        <div className="input-wrapper">
           <input 
             value={input} 
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Type your message..." 
-            style={{ flex: 1, padding: '12px 20px', borderRadius: '25px', border: '2px solid #e0e0e0' }}
           />
           <button onClick={() => handleSend()} disabled={isTyping}>Send</button>
         </div>
@@ -114,4 +111,4 @@ const StudyChatbox = () => {
   );
 };
 
-export default StudyChatbox;
+export default Chatbot;
