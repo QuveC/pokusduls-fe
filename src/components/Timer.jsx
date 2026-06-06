@@ -24,6 +24,8 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
   const [settings, setSettings] = useState({
     focusDuration: 25, shortBreakDuration: 5, longBreakDuration: 15,
     cyclesBeforeLongBreak: 4, enableFocusEnforcement: true,
+    feynmanLearnDuration: 30, feynmanExplainDuration: 15, feynmanReviewDuration: 10,
+    activeRecallDuration: 20,
   });
   const [focusProgress, setFocusProgress] = useState(0);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
@@ -53,13 +55,13 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
 
   useEffect(() => {
     const s = localStorage.getItem('pokus-settings');
-    if (s) setSettings(JSON.parse(s));
+    if (s) setSettings(prev => ({ ...prev, ...JSON.parse(s) }));
   }, []);
 
   useEffect(() => {
     if (mode === 'pomodoro') { setTimeLeft(settings.focusDuration * 60); setSessionType('focus'); setCycleCount(0); }
-    else if (mode === 'feynman') { setFeynmanStep('learn'); setTimeLeft(30 * 60); setFeynmanNotes(''); }
-    else if (mode === 'active-recall') setTimeLeft(20 * 60);
+    else if (mode === 'feynman') { setFeynmanStep('learn'); setTimeLeft(settings.feynmanLearnDuration * 60); setFeynmanNotes(''); }
+    else if (mode === 'active-recall') setTimeLeft(settings.activeRecallDuration * 60);
     setIsRunning(false); setFocusProgress(0);
   }, [mode, settings]);
 
@@ -70,10 +72,10 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
           const t = prev - 1;
           if (sessionType === 'focus' || mode !== 'pomodoro') {
             const total = mode === 'pomodoro' ? settings.focusDuration * 60
-              : mode === 'feynman' && feynmanStep === 'learn' ? 30 * 60
-              : mode === 'feynman' && feynmanStep === 'explain' ? 15 * 60
-              : mode === 'feynman' && feynmanStep === 'review' ? 10 * 60
-              : 20 * 60;
+              : mode === 'feynman' && feynmanStep === 'learn'    ? settings.feynmanLearnDuration * 60
+              : mode === 'feynman' && feynmanStep === 'explain'  ? settings.feynmanExplainDuration * 60
+              : mode === 'feynman' && feynmanStep === 'review'   ? settings.feynmanReviewDuration * 60
+              : settings.activeRecallDuration * 60;
             setFocusProgress((total - t) / total * 100);
           }
           return t;
@@ -112,9 +114,10 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
 
   const saveSession = async () => {
     const dur = mode === 'pomodoro' ? settings.focusDuration
-      : mode === 'feynman' && feynmanStep === 'learn' ? 30
-      : mode === 'feynman' && feynmanStep === 'explain' ? 15
-      : mode === 'feynman' && feynmanStep === 'review' ? 10 : 20;
+      : mode === 'feynman' && feynmanStep === 'learn'   ? settings.feynmanLearnDuration
+      : mode === 'feynman' && feynmanStep === 'explain' ? settings.feynmanExplainDuration
+      : mode === 'feynman' && feynmanStep === 'review'  ? settings.feynmanReviewDuration
+      : settings.activeRecallDuration;
 
     const userId = localStorage.getItem('pokus-user-id');
     const historyKey = userId ? `pokus-history-${userId}` : 'pokus-history-guest';
@@ -146,8 +149,8 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
         else { setSessionType('short-break'); setTimeLeft(settings.shortBreakDuration * 60); }
       } else { setSessionType('focus'); setTimeLeft(settings.focusDuration * 60); }
     } else if (mode === 'feynman') {
-      if (feynmanStep === 'learn') { setFeynmanStep('explain'); setTimeLeft(15 * 60); }
-      else if (feynmanStep === 'explain') { setFeynmanStep('review'); setTimeLeft(10 * 60); }
+      if (feynmanStep === 'learn')   { setFeynmanStep('explain'); setTimeLeft(settings.feynmanExplainDuration * 60); }
+      else if (feynmanStep === 'explain') { setFeynmanStep('review');  setTimeLeft(settings.feynmanReviewDuration * 60); }
       else alert('Sesi Feynman selesai! Bagus!');
     } else if (mode === 'active-recall') {
       alert('Sesi Active Recall selesai! Bagus!');
@@ -167,8 +170,8 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
     setIsRunning(false); setFocusProgress(0); setTabSwitchCount(0); setShowFocusWarning(false);
     setTreeType(null); // reset so next session requires picking again
     if (mode === 'pomodoro') { setTimeLeft(settings.focusDuration * 60); setSessionType('focus'); setCycleCount(0); }
-    else if (mode === 'feynman') { setFeynmanStep('learn'); setTimeLeft(30 * 60); }
-    else setTimeLeft(20 * 60);
+    else if (mode === 'feynman') { setFeynmanStep('learn'); setTimeLeft(settings.feynmanLearnDuration * 60); }
+    else setTimeLeft(settings.activeRecallDuration * 60);
   };
   // Expose stop() to parent (Dashboard) via ref
   useImperativeHandle(ref, () => ({ stop: handleStop }));
@@ -337,8 +340,8 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
           {(mode === 'feynman' || mode === 'active-recall') && (
             <p className="text-slate-400 text-sm max-w-xs mx-auto mt-1">{getInstruction()}</p>
           )}
-          {tabSwitchCount > 0 && settings.enableFocusEnforcement && (
-            <p className="text-amber-400 text-xs mt-2">⚠ Distraksi terdeteksi: {tabSwitchCount}x</p>
+          {tabSwitchCount > 0 && isRunning && settings.enableFocusEnforcement && (
+            <p className="text-red-400 text-xs mt-2 flex items-center justify-center gap-1">⚠ Distraksi terdeteksi: {tabSwitchCount}x</p>
           )}
         </div>
 
@@ -438,12 +441,13 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
       </div>
 
       {/* Music Player */}
-      <MusicPlayer />
+      <MusicPlayer mode={mode} />
 
       {/* Modals */}
       {showSettings && (
         <SettingsModal
           settings={settings}
+          mode={mode}
           onSave={(s) => { setSettings(s); localStorage.setItem('pokus-settings', JSON.stringify(s)); setShowSettings(false); }}
           onClose={() => setShowSettings(false)}
         />

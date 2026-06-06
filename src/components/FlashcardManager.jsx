@@ -252,6 +252,9 @@ function AddCardForm({ onAdd, onCancel }) {
 function DeckDetail({ deck, onBack, onUpdate }) {
   const [showAddCard, setShowAddCard] = useState(false);
   const [studying, setStudying] = useState(false);
+  const [editingCardId, setEditingCardId] = useState(null);
+  const [editFront, setEditFront] = useState('');
+  const [editBack, setEditBack] = useState('');
 
   if (studying) {
     if (deck.cards.length === 0) return null;
@@ -267,6 +270,28 @@ function DeckDetail({ deck, onBack, onUpdate }) {
   const handleDeleteCard = (cardId) => {
     const updated = { ...deck, cards: deck.cards.filter(c => c.id !== cardId) };
     onUpdate(updated);
+    if (editingCardId === cardId) setEditingCardId(null);
+  };
+
+  const startEdit = (card) => {
+    setEditingCardId(card.id);
+    setEditFront(card.front);
+    setEditBack(card.back);
+    setShowAddCard(false);
+  };
+
+  const cancelEdit = () => setEditingCardId(null);
+
+  const saveEdit = () => {
+    if (!editFront.trim() || !editBack.trim()) return;
+    const updated = {
+      ...deck,
+      cards: deck.cards.map(c =>
+        c.id === editingCardId ? { ...c, front: editFront.trim(), back: editBack.trim() } : c
+      ),
+    };
+    onUpdate(updated);
+    setEditingCardId(null);
   };
 
   return (
@@ -294,18 +319,73 @@ function DeckDetail({ deck, onBack, onUpdate }) {
       {deck.cards.length > 0 ? (
         <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
           {deck.cards.map((card, i) => (
-            <div key={card.id} className="bg-slate-800/60 border border-slate-700/40 rounded-lg p-3.5 flex items-start gap-3 group hover:border-slate-600/60 transition-all">
-              <div className="w-6 h-6 bg-purple-500/20 rounded-md flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-purple-400 text-[10px] font-bold">{i + 1}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium truncate">{card.front}</p>
-                <p className="text-slate-400 text-xs mt-0.5 truncate">{card.back}</p>
-              </div>
-              <button onClick={() => handleDeleteCard(card.id)}
-                className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg transition-all text-red-400">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+            <div key={card.id}>
+              {editingCardId === card.id ? (
+                /* ── Inline Edit Form ── */
+                <div className="bg-slate-800/80 border border-purple-500/40 rounded-lg p-4 space-y-3">
+                  <p className="text-purple-400 text-xs font-semibold">Edit Kartu {i + 1}</p>
+                  <div>
+                    <label className="block text-slate-400 text-xs mb-1">Pertanyaan / Depan</label>
+                    <textarea
+                      value={editFront}
+                      onChange={e => setEditFront(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 text-xs mb-1">Jawaban / Belakang</label>
+                    <textarea
+                      value={editBack}
+                      onChange={e => setEditBack(e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none transition-all"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={saveEdit}
+                      disabled={!editFront.trim() || !editBack.trim()}
+                      className="flex-1 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg text-sm font-medium disabled:opacity-40 hover:shadow-lg transition-all"
+                    >
+                      Simpan
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg text-sm hover:bg-slate-600 transition-all"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* ── Normal Card Row ── */
+                <div className="bg-slate-800/60 border border-slate-700/40 rounded-lg p-3.5 flex items-start gap-3 group hover:border-slate-600/60 transition-all">
+                  <div className="w-6 h-6 bg-purple-500/20 rounded-md flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-purple-400 text-[10px] font-bold">{i + 1}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-medium truncate">{card.front}</p>
+                    <p className="text-slate-400 text-xs mt-0.5 truncate">{card.back}</p>
+                  </div>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
+                    <button
+                      onClick={() => startEdit(card)}
+                      title="Edit kartu"
+                      className="p-1.5 hover:bg-purple-500/20 rounded-lg transition-all text-purple-400"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCard(card.id)}
+                      title="Hapus kartu"
+                      className="p-1.5 hover:bg-red-500/20 rounded-lg transition-all text-red-400"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -317,8 +397,8 @@ function DeckDetail({ deck, onBack, onUpdate }) {
         </div>
       )}
 
-      {/* Add card section */}
-      {showAddCard ? (
+      {/* Add card section — hidden while editing */}
+      {!editingCardId && (showAddCard ? (
         <div className="bg-slate-800/50 border border-purple-500/20 rounded-lg p-4">
           <h4 className="text-white text-sm font-semibold mb-3">Kartu Baru</h4>
           <AddCardForm onAdd={handleAddCard} onCancel={() => setShowAddCard(false)} />
@@ -328,7 +408,7 @@ function DeckDetail({ deck, onBack, onUpdate }) {
           className="w-full py-3 bg-slate-800/30 border-2 border-dashed border-slate-600/50 text-slate-400 rounded-lg hover:border-purple-500/40 hover:text-purple-400 hover:bg-slate-800/50 transition-all flex items-center justify-center gap-2 text-sm">
           <Plus className="w-4 h-4" /> Tambah Kartu
         </button>
-      )}
+      ))}
     </div>
   );
 }
