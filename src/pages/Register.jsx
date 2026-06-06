@@ -3,45 +3,66 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/user";
 import "../App.css";
 
+/* ── Icons ───────────────────────────────────────────────────── */
 const UserIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
   </svg>
 );
+
 const MailIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="4" width="20" height="16" rx="2" />
     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
   </svg>
 );
+
 const LockIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>
 );
+
 const EyeIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
     <circle cx="12" cy="12" r="3" />
   </svg>
 );
+
 const EyeOffIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
     <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
     <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
     <line x1="2" y1="2" x2="22" y2="22" />
   </svg>
 );
-const ShieldIcon = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    <path d="m9 12 2 2 4-4" />
+
+const CheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 
+const AlertIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+);
+
+const LogoIcon = () => (
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+/* ── Password strength ───────────────────────────────────────── */
 function getPasswordStrength(password) {
   if (!password) return { level: 0, label: "" };
   let score = 0;
@@ -55,6 +76,7 @@ function getPasswordStrength(password) {
   return { level: 3, label: "Kuat" };
 }
 
+/* ── Main Component ──────────────────────────────────────────── */
 export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -101,57 +123,124 @@ export default function Register() {
   };
 
   return (
-    <div className="login-page-wrapper">
-      <div className="login-background">
-        <div className="orb" /><div className="orb" /><div className="orb" /><div className="orb" />
+    <div className="auth-page">
+      {/* Animated background */}
+      <div className="auth-bg">
+        <div className="orb" />
+        <div className="orb" />
+        <div className="orb" />
+        <div className="orb" />
       </div>
-      <div className="login-container">
-        <div className="login-card">
-          <div className="login-brand">
-            <div className="brand-icon"><ShieldIcon /></div>
+
+      <div className="auth-layout">
+        <div className="auth-card">
+
+          {/* Brand */}
+          <div className="auth-brand">
+            <div className="auth-brand-icon">
+              <LogoIcon />
+            </div>
             <h1>PokusDuls</h1>
-            <p>Buat akun baru</p>
+            <p>Buat akun dan mulai perjalanan belajarmu</p>
           </div>
-          <form className="login-form" onSubmit={handleRegister}>
-            <div className="input-group">
-              <span className="input-icon"><UserIcon /></span>
-              <input id="input-username" type="text" placeholder="Username" value={username}
-                onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+
+          {/* Form */}
+          <form className="auth-form" onSubmit={handleRegister}>
+
+            {/* Username */}
+            <div className="auth-field">
+              <label className="auth-field-label">Username</label>
+              <div className="auth-input-group">
+                <span className="auth-input-icon"><UserIcon /></span>
+                <input
+                  id="input-username"
+                  type="text"
+                  placeholder="Masukkan username..."
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                  autoFocus
+                />
+              </div>
             </div>
-            <div className="input-group">
-              <span className="input-icon"><MailIcon /></span>
-              <input id="input-email" type="email" placeholder="Email" value={email}
-                onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+
+            {/* Email */}
+            <div className="auth-field">
+              <label className="auth-field-label">Email</label>
+              <div className="auth-input-group">
+                <span className="auth-input-icon"><MailIcon /></span>
+                <input
+                  id="input-email"
+                  type="email"
+                  placeholder="contoh@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                />
+              </div>
             </div>
-            <div className="input-group">
-              <span className="input-icon"><LockIcon /></span>
-              <input id="input-password" type={showPassword ? "text" : "password"} placeholder="Password"
-                value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
-              <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}>
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
+
+            {/* Password */}
+            <div className="auth-field">
+              <label className="auth-field-label">Password</label>
+              <div className="auth-input-group">
+                <span className="auth-input-icon"><LockIcon /></span>
+                <input
+                  id="input-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Minimal 6 karakter..."
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  className="auth-pw-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                >
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+
+              {/* Password strength indicator */}
+              {password && (
+                <>
+                  <div className="pw-strength-bars">
+                    <div className={`bar ${passwordStrength.level >= 1 ? (passwordStrength.level === 1 ? "weak" : passwordStrength.level === 2 ? "medium" : "strong") : ""}`} />
+                    <div className={`bar ${passwordStrength.level >= 2 ? (passwordStrength.level === 2 ? "medium" : "strong") : ""}`} />
+                    <div className={`bar ${passwordStrength.level >= 3 ? "strong" : ""}`} />
+                  </div>
+                  <span className={`pw-strength-label ${passwordStrength.level === 1 ? "weak" : passwordStrength.level === 2 ? "medium" : "strong"}`}>
+                    Kekuatan: {passwordStrength.label}
+                  </span>
+                </>
+              )}
             </div>
-            {password && (
-              <>
-                <div className="password-strength">
-                  <div className={`bar ${passwordStrength.level >= 1 ? passwordStrength.level === 1 ? "weak" : passwordStrength.level === 2 ? "medium" : "strong" : ""}`} />
-                  <div className={`bar ${passwordStrength.level >= 2 ? passwordStrength.level === 2 ? "medium" : "strong" : ""}`} />
-                  <div className={`bar ${passwordStrength.level >= 3 ? "strong" : ""}`} />
-                </div>
-                <span className={`password-strength-text ${passwordStrength.level === 1 ? "weak" : passwordStrength.level === 2 ? "medium" : "strong"}`}>
-                  Kekuatan password: {passwordStrength.label}
-                </span>
-              </>
-            )}
+
+            {/* Alert message */}
             {message.text && (
-              <div className={`login-message ${message.type}`}>{message.text}</div>
+              <div className={`auth-alert ${message.type}`}>
+                {message.type === "success" ? <CheckIcon /> : <AlertIcon />}
+                <span>{message.text}</span>
+              </div>
             )}
-            <button id="btn-submit" type="submit" className="login-submit" disabled={loading}>
-              <span>{loading ? <span className="spinner" /> : "Daftar"}</span>
+
+            {/* Submit */}
+            <button
+              id="btn-submit"
+              type="submit"
+              className="auth-submit"
+              disabled={loading}
+            >
+              <span>
+                {loading ? <span className="auth-spinner" /> : "Buat Akun"}
+              </span>
             </button>
           </form>
-          <div className="login-footer">
+
+          {/* Footer */}
+          <div className="auth-footer">
             <p>Sudah punya akun? <Link to="/">Masuk di sini</Link></p>
           </div>
         </div>

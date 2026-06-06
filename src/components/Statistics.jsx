@@ -11,8 +11,9 @@ export default function Statistics() {
   const [loadingApi, setLoadingApi] = useState(false);
 
   useEffect(() => {
-    // Data lokal dari localStorage (sesi hari ini)
-    const history = JSON.parse(localStorage.getItem('pokus-history') || '[]');
+    const userId = localStorage.getItem('pokus-user-id');
+    const historyKey = userId ? `pokus-history-${userId}` : 'pokus-history-guest';
+    const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
     setSessions(history);
     setTotalMinutes(history.reduce((s, h) => s + h.duration, 0));
 
@@ -27,7 +28,6 @@ export default function Statistics() {
     })));
 
     // Data global dari backend (XP, streak, dll)
-    const userId = localStorage.getItem('pokus-user-id');
     if (userId) {
       setLoadingApi(true);
       getStatistics(parseInt(userId))
@@ -187,7 +187,7 @@ export default function Statistics() {
       {sessions.length > 0 && (
         <div className="flex justify-center">
           <button
-            onClick={() => { if (confirm('Hapus semua data?')) { localStorage.removeItem('pokus-history'); setSessions([]); setTotalMinutes(0); setWeekData(weekData.map(d => ({...d, minutes:0}))); }}}
+            onClick={() => { const u = localStorage.getItem('pokus-user-id'); const k = u ? `pokus-history-${u}` : 'pokus-history-guest'; if (confirm('Hapus semua data?')) { localStorage.removeItem(k); setSessions([]); setTotalMinutes(0); setWeekData(weekData.map(d => ({...d, minutes:0}))); }}}
             className="px-5 py-2.5 text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all text-sm"
           >
             Hapus Semua Data

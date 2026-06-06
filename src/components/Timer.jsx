@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Square, Settings, Target, AlertCircle, MessageSquare, Layers } from 'lucide-react';
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { Play, Pause, Square, Settings, Target, AlertCircle, Layers, BookOpen } from 'lucide-react';
 import MusicPlayer from './MusicPlayer.jsx';
 import SettingsModal from './SettingsModal.jsx';
 import FocusAnimation from './FocusAnimation.jsx';
 import GoalSelector from './GoalSelector.jsx';
 import ModeCarousel from './ModeCarousel.jsx';
 import FocusDetectorMini from './FocusDetectorMini.jsx';
-import Chatbot from './Chatbot.jsx';
+import FeynmanAI from './FeynmanAI.jsx';
 import FlashcardManager from './FlashcardManager.jsx';
 import { completeSession } from '../api/session';
 import { updateStatistics } from '../api/statistics';
 
-export default function Timer() {
+const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
   const [mode, setMode] = useState('pomodoro');
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -28,10 +28,12 @@ export default function Timer() {
   const [focusProgress, setFocusProgress] = useState(0);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [showFocusWarning, setShowFocusWarning] = useState(false);
-  const [showChatbot, setShowChatbot] = useState(false);
+  const [showFeynmanAI, setShowFeynmanAI] = useState(false);
   const [showFlashcard, setShowFlashcard] = useState(false);
   const [treeType, setTreeType] = useState(null);       // null = not picked yet
   const [showTreePicker, setShowTreePicker] = useState(false);
+  const [pendingMode, setPendingMode] = useState(null);  // mode change guard
+  const [carouselKey, setCarouselKey] = useState(0);     // force carousel reset on cancel
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -94,7 +96,11 @@ export default function Timer() {
     }
   }, [timeLeft, isRunning]);
 
+  // Notify parent when running state changes so Dashboard can gate navigation
+  useEffect(() => { onRunningChange?.(isRunning); }, [isRunning]); // eslint-disable-line
+
   useEffect(() => {
+
     const handleKey = (e) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.code === 'Space') { e.preventDefault(); isRunning ? handlePause() : handleStart(); }
@@ -110,13 +116,15 @@ export default function Timer() {
       : mode === 'feynman' && feynmanStep === 'explain' ? 15
       : mode === 'feynman' && feynmanStep === 'review' ? 10 : 20;
 
+    const userId = localStorage.getItem('pokus-user-id');
+    const historyKey = userId ? `pokus-history-${userId}` : 'pokus-history-guest';
+
     // Simpan ke localStorage (lokal)
-    const h = JSON.parse(localStorage.getItem('pokus-history') || '[]');
+    const h = JSON.parse(localStorage.getItem(historyKey) || '[]');
     h.push({ date: new Date().toISOString(), duration: dur, mode });
-    localStorage.setItem('pokus-history', JSON.stringify(h));
+    localStorage.setItem(historyKey, JSON.stringify(h));
 
     // Kirim ke backend jika user sudah login
-    const userId = parseInt(localStorage.getItem('pokus-user-id'));
     if (userId) {
       try {
         const xpGained = Math.floor(dur * 2); // 2 XP per menit
@@ -162,6 +170,9 @@ export default function Timer() {
     else if (mode === 'feynman') { setFeynmanStep('learn'); setTimeLeft(30 * 60); }
     else setTimeLeft(20 * 60);
   };
+  // Expose stop() to parent (Dashboard) via ref
+  useImperativeHandle(ref, () => ({ stop: handleStop }));
+
   const handleTreePicked = (id) => {
     setTreeType(id);
     setShowTreePicker(false);
@@ -204,6 +215,15 @@ export default function Timer() {
     : mode === 'active-recall' ? 'from-purple-500 to-pink-600'
     : (sessionColors[sessionType] || 'from-emerald-500 to-teal-600');
 
+  // Guard mode change while timer is running
+  const handleModeChangeRequest = (newMode) => {
+    if (isRunning) {
+      setPendingMode(newMode); // show warning
+    } else {
+      setMode(newMode);
+    }
+  };
+
   return (
     <div className="space-y-5">
       {/* Focus Warning */}
@@ -219,9 +239,47 @@ export default function Timer() {
         </div>
       )}
 
+      {/* Mode Change Guard Modal */}
+      {pendingMode && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-slate-900 border border-red-500/30 rounded-2xl shadow-2xl w-full max-w-xs p-6 animate-slide-up">
+            <div className="w-14 h-14 bg-red-500/15 border border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-6 h-6 text-red-400" />
+            </div>
+            <div className="text-center mb-6">
+              <h3 className="text-white font-bold text-lg mb-1">Sesi sedang berjalan!</h3>
+              <p className="text-slate-400 text-sm">
+                Apakah kamu yakin ingin berhenti dan ganti ke mode{' '}
+                <span className="text-white font-semibold">
+                  {pendingMode === 'pomodoro' ? 'Pomodoro'
+                    : pendingMode === 'feynman' ? 'Feynman'
+                    : 'Active Recall'}
+                </span>?
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setPendingMode(null); setCarouselKey(k => k + 1); }}
+                className="flex-1 py-3 bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 rounded-xl text-sm font-semibold hover:bg-emerald-500/25 transition-all">
+                Tidak, Lanjut
+              </button>
+              <button
+                onClick={() => {
+                  handleStop();
+                  setMode(pendingMode);
+                  setPendingMode(null);
+                }}
+                className="flex-1 py-3 bg-gradient-to-r from-red-500/80 to-rose-600/80 border border-red-500/40 text-white rounded-xl text-sm font-semibold hover:from-red-500 hover:to-rose-600 hover:shadow-lg hover:shadow-red-500/20 transition-all">
+                Ya, Berhenti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mode Carousel */}
       <div className="max-w-md mx-auto">
-        <ModeCarousel currentMode={mode} onModeChange={setMode} />
+        <ModeCarousel key={carouselKey} currentMode={mode} onModeChange={handleModeChangeRequest} />
       </div>
 
       {/* Goal Button */}
@@ -238,7 +296,27 @@ export default function Timer() {
 
       {/* Timer Card */}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-xl p-6 sm:p-8">
-        <div className="flex justify-end mb-2">
+        <div className="flex justify-between items-center mb-2">
+          {/* Flashcard quick-access — top left, active-recall only */}
+          {mode === 'active-recall' ? (
+            <button
+              id="btn-open-flashcard"
+              onClick={() => setShowFlashcard(true)}
+              className="group flex items-center gap-0 hover:gap-2 overflow-hidden
+                px-2.5 py-2 rounded-lg border border-purple-500/30 bg-purple-500/10
+                hover:bg-purple-500/20 hover:border-purple-500/50
+                text-purple-300 transition-all duration-300 ease-out"
+              title="Buka Flashcard"
+            >
+              <Layers className="w-4 h-4 shrink-0 group-hover:hidden" />
+              <BookOpen className="w-4 h-4 shrink-0 hidden group-hover:block" />
+              <span className="max-w-0 group-hover:max-w-[80px] overflow-hidden whitespace-nowrap text-xs font-medium transition-all duration-300 ease-out">
+                Flashcard
+              </span>
+            </button>
+          ) : (
+            <div className="w-8" />
+          )}
           <button
             id="btn-settings"
             onClick={() => setShowSettings(true)}
@@ -296,33 +374,36 @@ export default function Timer() {
           </div>
         )}
 
-        {/* AI Assistant button — Feynman only */}
-        {mode === 'feynman' && isRunning && (
+        {/* AI Rangkuman — Feynman only (available in all steps) */}
+        {mode === 'feynman' && treeType && (
           <div className="mb-5">
             <button
-              id="btn-open-chatbot"
-              onClick={() => setShowChatbot(true)}
-              className="w-full py-3 bg-gradient-to-r from-cyan-500/15 to-blue-600/15 border border-cyan-500/30 text-cyan-300 rounded-xl flex items-center justify-center gap-2 hover:from-cyan-500/25 hover:to-blue-600/25 hover:border-cyan-500/50 transition-all text-sm font-medium"
+              id="btn-open-feynman-ai"
+              onClick={() => setShowFeynmanAI(v => !v)}
+              className="w-full py-3 border rounded-xl flex items-center justify-center gap-2 transition-all text-sm font-medium"
+              style={{
+                background: showFeynmanAI
+                  ? 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(16,185,129,0.15))'
+                  : 'rgba(6,182,212,0.08)',
+                borderColor: showFeynmanAI ? 'rgba(6,182,212,0.5)' : 'rgba(6,182,212,0.25)',
+                color: '#06b6d4',
+              }}
             >
-              <MessageSquare className="w-4 h-4" />
-              Tanya AI Assistant
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+              </svg>
+              {showFeynmanAI ? 'Tutup AI Rangkuman' : 'AI Rangkuman Materi'}
             </button>
+
+            {/* Inline FeynmanAI panel */}
+            {showFeynmanAI && (
+              <div className="mt-4 animate-slide-up">
+                <FeynmanAI />
+              </div>
+            )}
           </div>
         )}
 
-        {/* Flashcard button — Active Recall only */}
-        {mode === 'active-recall' && (
-          <div className="mb-5">
-            <button
-              id="btn-open-flashcard"
-              onClick={() => setShowFlashcard(true)}
-              className="w-full py-3 bg-gradient-to-r from-purple-500/15 to-pink-600/15 border border-purple-500/30 text-purple-300 rounded-xl flex items-center justify-center gap-2 hover:from-purple-500/25 hover:to-pink-600/25 hover:border-purple-500/50 transition-all text-sm font-medium"
-            >
-              <Layers className="w-4 h-4" />
-              Buka Flashcard
-            </button>
-          </div>
-        )}
 
         {/* Controls */}
         <div className="flex justify-center gap-3">
@@ -339,7 +420,7 @@ export default function Timer() {
             <button
               id="btn-pause-timer"
               onClick={handlePause}
-              className="px-8 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl flex items-center gap-2 hover:shadow-lg hover:scale-105 transition-all shadow-md font-medium"
+              className="px-8 py-3.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center gap-2 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all font-medium"
             >
               <Pause className="w-5 h-5" />
               <span>Jeda</span>
@@ -414,29 +495,7 @@ export default function Timer() {
         </div>
       )}
 
-      {showChatbot && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-fade-in">
-          <div className="bg-slate-900 border border-slate-700/50 rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
-            <div className="bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border-b border-cyan-500/20 px-5 py-4 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                  <MessageSquare className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-white font-bold">AI Study Assistant</h2>
-                  <p className="text-slate-400 text-xs">Asisten belajar Feynman</p>
-                </div>
-              </div>
-              <button onClick={() => setShowChatbot(false)} className="p-2 hover:bg-slate-700/50 rounded-xl transition-colors">
-                <span className="text-slate-400 text-lg leading-none">✕</span>
-              </button>
-            </div>
-            <div className="flex-1 overflow-hidden p-4">
-              <Chatbot />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* FeynmanAI is now rendered inline inside the timer card above */}
       {showFlashcard && (
         <FlashcardManager onClose={() => setShowFlashcard(false)} />
       )}
@@ -448,4 +507,6 @@ export default function Timer() {
       />
     </div>
   );
-}
+});
+
+export default Timer;
