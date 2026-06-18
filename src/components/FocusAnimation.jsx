@@ -1,48 +1,47 @@
 import { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 
-// ── Pot SVG (always visible, covers tree base) ─────────────────────────────
 function PotSVG() {
   return (
     <svg viewBox="0 0 200 68" width="100%" height="100%" style={{ display: 'block' }}>
-      {/* Saucer plate */}
+      {}
       <ellipse cx="100" cy="63" rx="52" ry="7"   fill="#78350f" />
       <ellipse cx="100" cy="61" rx="50" ry="6"   fill="#92400e" />
       <ellipse cx="100" cy="59" rx="48" ry="5.5" fill="#b45309" />
       <ellipse cx="100" cy="58" rx="40" ry="3"   fill="#ca8a04" opacity="0.25" />
 
-      {/* Pot body */}
+      {}
       <path
         d="M70 20 Q66 44 68 58 Q82 66 100 66 Q118 66 132 58 Q134 44 130 20Z"
         fill="#c2410c"
       />
-      {/* Body right shadow */}
+      {}
       <path d="M127 22 Q131 44 130 56 Q133 40 130 22Z" fill="#991b1b" opacity="0.55" />
-      {/* Body left highlight */}
+      {}
       <path d="M73 22 Q69 44 70 56 Q68 40 71 22Z" fill="#f97316" opacity="0.25" />
-      {/* Decorative band */}
+      {}
       <path
         d="M71 43 Q100 47 129 43 Q100 39 71 43Z"
         fill="#991b1b" opacity="0.3"
         stroke="#b91c1c" strokeWidth="0.5"
       />
-      {/* Ceramic sheen */}
+      {}
       <ellipse cx="80" cy="38" rx="4.5" ry="13" fill="white" opacity="0.06"
         transform="rotate(-8,80,38)" />
 
-      {/* Rim outer body */}
+      {}
       <path
         d="M61 11 Q60 23 70 23 Q85 25 100 25 Q115 25 130 23 Q140 23 139 11 Q132 4 100 4 Q68 4 61 11Z"
         fill="#ea580c"
       />
-      {/* Rim top ellipse */}
+      {}
       <ellipse cx="100" cy="10" rx="40" ry="8"   fill="#f97316" />
-      {/* Rim inner dark lip */}
+      {}
       <ellipse cx="100" cy="8"  rx="33" ry="6.5" fill="#7c1d00" />
 
-      {/* Soil surface */}
+      {}
       <ellipse cx="100" cy="7"  rx="31" ry="5.5" fill="#1c0a00" />
-      {/* Soil texture */}
+      {}
       <ellipse cx="87"  cy="6"  rx="9"  ry="2.2" fill="#292524" opacity="0.9" />
       <ellipse cx="113" cy="7"  rx="7"  ry="1.8" fill="#292524" opacity="0.7" />
       <ellipse cx="100" cy="9"  rx="5"  ry="1.4" fill="#44403c" opacity="0.6" />
@@ -51,7 +50,6 @@ function PotSVG() {
   );
 }
 
-// ── Oak Tree ──────────────────────────────────────────────────────────────────
 function OakTree({ progress: p }) {
   return (
     <svg viewBox="0 0 200 160" width="100%" height="100%" style={{ display: 'block' }}>
@@ -66,10 +64,10 @@ function OakTree({ progress: p }) {
           <stop offset="100%" stopColor="#86efac" stopOpacity="0" />
         </radialGradient>
       </defs>
-      {/* Trunk */}
+      {}
       <path d="M93 160 C91 144 90 128 92 116 Q100 105 108 116 C110 128 109 144 107 160Z" fill="#92400e" />
       <path d="M97 155 C96 141 96 128 98 118 Q100 112 102 118 C104 128 104 141 103 155Z" fill="#a16207" opacity="0.35" />
-      {/* Canopy */}
+      {}
       <circle cx="100" cy="88" r="56" fill="url(#oak-g)" />
       <circle cx="66"  cy="102" r="35" fill="#16a34a" opacity="0.9" />
       <circle cx="134" cy="97"  r="32" fill="#16a34a" opacity="0.9" />
@@ -77,7 +75,7 @@ function OakTree({ progress: p }) {
       <circle cx="120" cy="83"  r="25" fill="#22c55e" opacity="0.65" />
       <circle cx="80"  cy="79"  r="23" fill="#22c55e" opacity="0.65" />
       <circle cx="87"  cy="70"  r="30" fill="url(#oak-hi)" />
-      {/* Apples */}
+      {}
       {p >= 70 && (<>
         <circle cx="74"  cy="97" r="6"   fill="#dc2626" />
         <ellipse cx="72" cy="95" rx="2.5" ry="2" fill="#fca5a5" opacity="0.7" />
@@ -93,7 +91,6 @@ function OakTree({ progress: p }) {
   );
 }
 
-// ── Sakura Tree ───────────────────────────────────────────────────────────────
 function SakuraTree({ progress: p }) {
   return (
     <svg viewBox="0 0 200 160" width="100%" height="100%" style={{ display: 'block' }}>
@@ -104,17 +101,17 @@ function SakuraTree({ progress: p }) {
           <stop offset="100%" stopColor="#be185d" stopOpacity="0.9" />
         </radialGradient>
       </defs>
-      {/* Trunk */}
+      {}
       <path d="M97 160 C96 147 95 133 96 123 Q100 113 104 123 C105 133 104 147 103 160Z" fill="#78350f" />
       <path d="M99 154 C98 142 98 131 99 124 Q100 119 101 124 C102 131 102 142 101 154Z" fill="#a16207" opacity="0.28" />
-      {/* Branches */}
+      {}
       <path d="M100 127 Q76 116 54 106" stroke="#78350f" strokeWidth="6" fill="none" strokeLinecap="round" />
       <path d="M100 125 Q124 113 146 104" stroke="#78350f" strokeWidth="6" fill="none" strokeLinecap="round" />
       <path d="M99 119 Q86 98 82 74"    stroke="#92400e" strokeWidth="4" fill="none" strokeLinecap="round" />
       <path d="M101 119 Q114 98 118 76"  stroke="#92400e" strokeWidth="4" fill="none" strokeLinecap="round" />
       <path d="M54 106 Q47 98 51 86"    stroke="#92400e" strokeWidth="3.5" fill="none" strokeLinecap="round" />
       <path d="M146 104 Q153 96 149 85"  stroke="#92400e" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-      {/* Blossom clusters */}
+      {}
       <circle cx="100" cy="79" r="44" fill="url(#sak-g)" opacity="0.94" />
       <circle cx="65"  cy="94" r="32" fill="#fbcfe8" opacity="0.92" />
       <circle cx="135" cy="90" r="30" fill="#fbcfe8" opacity="0.92" />
@@ -137,38 +134,37 @@ function SakuraTree({ progress: p }) {
   );
 }
 
-// ── Pine Tree ─────────────────────────────────────────────────────────────────
 function PineTree({ progress: p }) {
   const snow = p >= 58;
   const star = p >= 65;
   return (
     <svg viewBox="0 0 200 160" width="100%" height="100%" style={{ display: 'block' }}>
-      {/* Trunk */}
+      {}
       <rect x="93" y="130" width="14" height="30" rx="5" fill="#92400e" />
       <rect x="97" y="133" width="5"  height="25" rx="2.5" fill="#a16207" opacity="0.38" />
-      {/* Bottom tier */}
+      {}
       <polygon points="100,112 45,152 155,152" fill="#14532d" opacity="0.55" />
       <polygon points="100,107 47,150 153,150" fill="#15803d" />
       <polygon points="100,107 47,128 100,128" fill="#22c55e" opacity="0.28" />
       <line x1="100" y1="107" x2="78"  y2="128" stroke="#4ade80" strokeWidth="1.5" opacity="0.35" />
       <line x1="100" y1="107" x2="122" y2="128" stroke="#4ade80" strokeWidth="1.5" opacity="0.35" />
-      {/* Middle tier */}
+      {}
       <polygon points="100,80 55,124 145,124" fill="#14532d" opacity="0.55" />
       <polygon points="100,75 57,121 143,121" fill="#16a34a" />
       <polygon points="100,75 57,96 100,96"   fill="#22c55e" opacity="0.28" />
       <line x1="100" y1="75" x2="77"  y2="97" stroke="#4ade80" strokeWidth="1.5" opacity="0.35" />
       <line x1="100" y1="75" x2="123" y2="97" stroke="#4ade80" strokeWidth="1.5" opacity="0.35" />
-      {/* Top tier */}
+      {}
       <polygon points="100,46 65,92 135,92" fill="#14532d" opacity="0.5" />
       <polygon points="100,41 67,89 133,89" fill="#22c55e" />
       <polygon points="100,41 67,63 100,63"  fill="#4ade80" opacity="0.32" />
-      {/* Snow */}
+      {}
       {snow && (<>
         <polygon points="100,41 67,58 133,58"  fill="white" opacity="0.82" />
         <polygon points="100,75 57,92 143,92"  fill="white" opacity="0.72" />
         <polygon points="100,107 47,125 153,125" fill="white" opacity="0.62" />
       </>)}
-      {/* Star */}
+      {}
       {star && (
         <polygon
           points="100,26 103,37 115,37 106,44 109,56 100,49 91,56 94,44 85,37 97,37"
@@ -180,7 +176,6 @@ function PineTree({ progress: p }) {
   );
 }
 
-// ── Cactus Tree ───────────────────────────────────────────────────────────────
 function CactusTree({ progress: p }) {
   const armP  = Math.max(0, (p - 35) / 65);
   const arms  = armP > 0;
@@ -189,7 +184,7 @@ function CactusTree({ progress: p }) {
   const bloom = p >= 80;
   return (
     <svg viewBox="0 0 200 160" width="100%" height="100%" style={{ display: 'block' }}>
-      {/* Arms (behind body) */}
+      {}
       {arms && (<>
         <path d={`M90 108 Q${lx+8} 112 ${lx} 104 Q${lx-3} 96 ${lx+12} 92`}
           stroke="#15803d" strokeWidth="17" fill="none" strokeLinecap="round" />
@@ -204,17 +199,17 @@ function CactusTree({ progress: p }) {
         <line x1={rx+2} y1="108" x2={rx+8} y2="105" stroke="#d1fae5" strokeWidth="1.5" />
         <line x1={rx-2} y1="115" x2={rx+4} y2="113" stroke="#d1fae5" strokeWidth="1.5" />
       </>)}
-      {/* Main body */}
+      {}
       <rect x="85" y="60" width="30" height="100" rx="15" fill="#16a34a" />
       <rect x="92" y="66" width="9"  height="88"  rx="4.5" fill="#22c55e" opacity="0.4" />
-      {/* Spines */}
+      {}
       {[78,93,108,123,138].map((y,i) => (
         <g key={i}>
           <line x1="83"  y1={y} x2="77"  y2={y-3} stroke="#d1fae5" strokeWidth="1.5" />
           <line x1="117" y1={y} x2="123" y2={y-3} stroke="#d1fae5" strokeWidth="1.5" />
         </g>
       ))}
-      {/* Flowers */}
+      {}
       {bloom && (<>
         {[0,60,120,180,240,300].map((deg,i) => (
           <ellipse key={i}
@@ -235,7 +230,6 @@ function CactusTree({ progress: p }) {
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
 export default function FocusAnimation({ progress, treeType = 'oak' }) {
   const [showWarning, setShowWarning] = useState(false);
 
@@ -271,7 +265,7 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
   return (
     <div className="space-y-3">
 
-      {/* Focus Warning */}
+      {}
       {showWarning && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 flex items-start gap-3 animate-pulse">
           <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
@@ -282,7 +276,7 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
         </div>
       )}
 
-      {/* Scene */}
+      {}
       <div style={{
         position: 'relative',
         height: 224,
@@ -292,13 +286,13 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
         boxShadow: '0 24px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
       }}>
 
-        {/* Room background */}
+        {}
         <div style={{
           position: 'absolute', inset: 0,
           background: 'linear-gradient(165deg, #1a1630 0%, #141e36 50%, #0d1a2e 100%)',
         }} />
 
-        {/* Ambient glow from tree */}
+        {}
         <div style={{
           position: 'absolute',
           top: -30, left: '50%', transform: 'translateX(-50%)',
@@ -307,32 +301,32 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
           transition: 'background 0.5s ease',
         }} />
 
-        {/* Back wall subtle pattern */}
+        {}
         <div style={{
           position: 'absolute', inset: 0,
           backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.008) 40px, rgba(255,255,255,0.008) 41px)',
         }} />
 
-        {/* Shelf / table surface */}
+        {}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 32,
           background: 'linear-gradient(to top, #1c2537, #263348)',
         }} />
-        {/* Shelf top edge */}
+        {}
         <div style={{
           position: 'absolute', bottom: 30, left: 0, right: 0, height: 3,
           background: 'linear-gradient(to right, transparent 5%, rgba(148,163,184,0.22) 30%, rgba(203,213,225,0.35) 50%, rgba(148,163,184,0.22) 70%, transparent 95%)',
         }} />
-        {/* Shelf surface glow (pot reflection) */}
+        {}
         <div style={{
           position: 'absolute', bottom: 26, left: '30%', right: '30%', height: 18,
           background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.05), transparent 70%)',
         }} />
 
-        {/* ── TREE (clipped, grows bottom → top) ── */}
+        {
         <div style={{
           position: 'absolute',
-          bottom: 88,   /* aligns with pot soil level */
+          bottom: 88,   
           left: '12%',
           right: '12%',
           top: 12,
@@ -343,10 +337,10 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
           <TreeComponent progress={p} />
         </div>
 
-        {/* ── POT (always visible, on top of tree) ── */}
+        {
         <div style={{
           position: 'absolute',
-          bottom: 30,   /* sits on shelf */
+          bottom: 30,   
           left: 0,
           right: 0,
           height: 72,
@@ -355,7 +349,7 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
           <PotSVG />
         </div>
 
-        {/* Progress bar strip */}
+        {}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0,
           padding: '5px 14px 8px',
@@ -381,10 +375,10 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
         </div>
       </div>
 
-      {/* Status message */}
+      {}
       <p className="text-emerald-300 text-sm font-medium px-1">{getMessage()}</p>
 
-      {/* Focus tip */}
+      {}
       <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3">
         <p className="text-xs text-indigo-300/80 text-center">
           💡 Tetap fokus pada tab ini untuk melihat pohon tumbuh!

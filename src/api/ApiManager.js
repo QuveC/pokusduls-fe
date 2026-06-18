@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000";
+const API = "https://9d99-182-10-98-15.ngrok-free.app";
 
 export const ApiManager = async (url, options = {}) => {
   const token = localStorage.getItem("pokus-token");

@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { X, ChevronUp, ChevronDown } from 'lucide-react';
 
-// ── Mode color themes ─────────────────────────────────────────────────────────
 const modeTheme = {
   pomodoro: {
     accent:      'from-emerald-500 to-teal-600',
@@ -35,11 +34,10 @@ const modeTheme = {
   },
 };
 
-// ── Custom Number Spinner ─────────────────────────────────────────────────────
 function NumberSpinner({ label, value, min, max, onChange, unit = 'menit', theme }) {
   const intervalRef = useRef(null);
   const timeoutRef  = useRef(null);
-  // Always keep a ref in sync so the hold-repeat interval never reads stale closures
+
   const valueRef = useRef(value);
   valueRef.current = value;
 
@@ -47,7 +45,7 @@ function NumberSpinner({ label, value, min, max, onChange, unit = 'menit', theme
 
   const step = (dir) => {
     const next = clamp(valueRef.current + dir);
-    valueRef.current = next; // update ref immediately so rapid calls chain correctly
+    valueRef.current = next; 
     onChange(next);
   };
 
@@ -71,7 +69,7 @@ function NumberSpinner({ label, value, min, max, onChange, unit = 'menit', theme
     <div>
       <label className={`block text-xs mb-2 font-medium ${theme.text}`}>{label}</label>
       <div className={`flex items-center gap-0 bg-slate-700/40 border rounded-lg overflow-hidden transition-colors group ${theme.border}`}>
-        {/* Down */}
+        {}
         <button
           type="button"
           onMouseDown={() => startHold(-1)}
@@ -85,7 +83,7 @@ function NumberSpinner({ label, value, min, max, onChange, unit = 'menit', theme
           <ChevronDown className="w-4 h-4" />
         </button>
 
-        {/* Value */}
+        {}
         <div
           className="flex-1 flex items-center justify-center gap-1.5 h-11 cursor-ns-resize select-none"
           onWheel={handleWheel}
@@ -94,7 +92,7 @@ function NumberSpinner({ label, value, min, max, onChange, unit = 'menit', theme
           <span className="text-slate-500 text-xs">{unit}</span>
         </div>
 
-        {/* Up */}
+        {}
         <button
           type="button"
           onMouseDown={() => startHold(1)}
@@ -116,7 +114,6 @@ function NumberSpinner({ label, value, min, max, onChange, unit = 'menit', theme
   );
 }
 
-// ── Settings Modal ────────────────────────────────────────────────────────────
 export default function SettingsModal({ settings, mode = 'pomodoro', onSave, onClose }) {
   const [s, setS] = useState({ ...settings });
   const theme = modeTheme[mode] || modeTheme.pomodoro;
@@ -127,7 +124,7 @@ export default function SettingsModal({ settings, mode = 'pomodoro', onSave, onC
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
       <div className={`bg-slate-800 border rounded-xl shadow-2xl max-w-md w-full p-6 ${theme.border}`}>
 
-        {/* Header */}
+        {}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${theme.accent} flex items-center justify-center`}>
@@ -143,7 +140,7 @@ export default function SettingsModal({ settings, mode = 'pomodoro', onSave, onC
         </div>
 
         <div className="space-y-5">
-            {/* Duration spinners – common for Pomodoro */}
+            {}
             {mode === 'pomodoro' && (
               <div className="grid grid-cols-2 gap-4">
                 <NumberSpinner label="Durasi Fokus" value={s.focusDuration} min={1} max={120} onChange={v => set('focusDuration', v)} theme={theme} />
@@ -153,7 +150,7 @@ export default function SettingsModal({ settings, mode = 'pomodoro', onSave, onC
               </div>
             )}
 
-            {/* Feynman specific durations */}
+            {}
             {mode === 'feynman' && (
               <div className="grid grid-cols-1 gap-4">
                 <NumberSpinner label="Durasi Belajar" value={s.feynmanLearnDuration} min={1} max={120} onChange={v => set('feynmanLearnDuration', v)} theme={theme} />
@@ -162,13 +159,12 @@ export default function SettingsModal({ settings, mode = 'pomodoro', onSave, onC
               </div>
             )}
 
-            {/* Active Recall specific duration */}
+            {}
             {mode === 'active-recall' && (
               <NumberSpinner label="Durasi Sesi" value={s.activeRecallDuration} min={1} max={120} onChange={v => set('activeRecallDuration', v)} theme={theme} />
             )}
 
-
-          {/* Focus enforcement toggle */}
+          {}
           <div className={`flex items-center justify-between p-4 bg-slate-700/30 border rounded-lg ${theme.border}`}>
             <div>
               <label className="block text-white text-sm font-medium">Penegakan Fokus</label>
@@ -183,7 +179,7 @@ export default function SettingsModal({ settings, mode = 'pomodoro', onSave, onC
           </div>
         </div>
 
-        {/* Footer */}
+        {}
         <div className="flex gap-3 mt-6">
           <button onClick={onClose}
             className="flex-1 px-4 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors text-sm font-medium">

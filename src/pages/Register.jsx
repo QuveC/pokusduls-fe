@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/user";
 import "../App.css";
 
-/* ── Icons ───────────────────────────────────────────────────── */
 const UserIcon = () => (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -62,7 +61,6 @@ const LogoIcon = () => (
   </svg>
 );
 
-/* ── Password strength ───────────────────────────────────────── */
 function getPasswordStrength(password) {
   if (!password) return { level: 0, label: "" };
   let score = 0;
@@ -76,7 +74,6 @@ function getPasswordStrength(password) {
   return { level: 3, label: "Kuat" };
 }
 
-/* ── Main Component ──────────────────────────────────────────── */
 export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -124,7 +121,7 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      {/* Animated background */}
+      {}
       <div className="auth-bg">
         <div className="orb" />
         <div className="orb" />
@@ -135,7 +132,7 @@ export default function Register() {
       <div className="auth-layout">
         <div className="auth-card">
 
-          {/* Brand */}
+          {}
           <div className="auth-brand">
             <div className="auth-brand-icon">
               <LogoIcon />
@@ -144,10 +141,10 @@ export default function Register() {
             <p>Buat akun dan mulai perjalanan belajarmu</p>
           </div>
 
-          {/* Form */}
+          {}
           <form className="auth-form" onSubmit={handleRegister}>
 
-            {/* Username */}
+            {}
             <div className="auth-field">
               <label className="auth-field-label">Username</label>
               <div className="auth-input-group">
@@ -164,7 +161,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Email */}
+            {}
             <div className="auth-field">
               <label className="auth-field-label">Email</label>
               <div className="auth-input-group">
@@ -180,7 +177,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Password */}
+            {}
             <div className="auth-field">
               <label className="auth-field-label">Password</label>
               <div className="auth-input-group">
@@ -203,7 +200,7 @@ export default function Register() {
                 </button>
               </div>
 
-              {/* Password strength indicator */}
+              {}
               {password && (
                 <>
                   <div className="pw-strength-bars">
@@ -218,7 +215,7 @@ export default function Register() {
               )}
             </div>
 
-            {/* Alert message */}
+            {}
             {message.text && (
               <div className={`auth-alert ${message.type}`}>
                 {message.type === "success" ? <CheckIcon /> : <AlertIcon />}
@@ -226,7 +223,7 @@ export default function Register() {
               </div>
             )}
 
-            {/* Submit */}
+            {}
             <button
               id="btn-submit"
               type="submit"
@@ -239,7 +236,7 @@ export default function Register() {
             </button>
           </form>
 
-          {/* Footer */}
+          {}
           <div className="auth-footer">
             <p>Sudah punya akun? <Link to="/">Masuk di sini</Link></p>
           </div>

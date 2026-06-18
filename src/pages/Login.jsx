@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../api/user";
 import "../App.css";
 
-/* ── Icon helpers ───────────────────────────────────────────── */
 const UserIcon = () => (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -48,7 +47,6 @@ const AlertIcon = () => (
   </svg>
 );
 
-/* ── Logo SVG ───────────────────────────────────────────────── */
 const LogoIcon = () => (
   <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
@@ -56,7 +54,6 @@ const LogoIcon = () => (
   </svg>
 );
 
-/* ── Main Component ─────────────────────────────────────────── */
 export default function Login() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -97,7 +94,7 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      {/* Animated background */}
+      {}
       <div className="auth-bg">
         <div className="orb" />
         <div className="orb" />
@@ -108,7 +105,7 @@ export default function Login() {
       <div className="auth-layout">
         <div className="auth-card">
 
-          {/* Brand */}
+          {}
           <div className="auth-brand">
             <div className="auth-brand-icon">
               <LogoIcon />
@@ -117,10 +114,10 @@ export default function Login() {
             <p>Masuk untuk melanjutkan belajar</p>
           </div>
 
-          {/* Form */}
+          {}
           <form className="auth-form" onSubmit={handleLogin}>
 
-            {/* Username */}
+            {}
             <div className="auth-field">
               <label className="auth-field-label">Username atau Email</label>
               <div className="auth-input-group">
@@ -137,7 +134,7 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Password */}
+            {}
             <div className="auth-field">
               <label className="auth-field-label">Password</label>
               <div className="auth-input-group">
@@ -161,7 +158,7 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Alert message */}
+            {}
             {message.text && (
               <div className={`auth-alert ${message.type}`}>
                 {message.type === "success" ? <CheckIcon /> : <AlertIcon />}
@@ -169,7 +166,7 @@ export default function Login() {
               </div>
             )}
 
-            {/* Submit */}
+            {}
             <button
               id="btn-submit"
               type="submit"
@@ -182,10 +179,10 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Divider */}
+          {}
           <div className="auth-divider">atau</div>
 
-          {/* Footer */}
+          {}
           <div className="auth-footer">
             <p>Belum punya akun? <Link to="/register">Daftar di sini</Link></p>
           </div>

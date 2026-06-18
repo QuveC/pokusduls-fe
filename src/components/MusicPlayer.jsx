@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipForward, SkipBack, Shuffle, Repeat, Music, Upload, X, Volume2, VolumeX } from 'lucide-react';
 
-// ── Mode color themes ─────────────────────────────────────────────────────────
 const modeTheme = {
   pomodoro: {
     gradient:  'from-emerald-500 to-teal-600',
@@ -149,7 +148,7 @@ export default function MusicPlayer({ mode = 'pomodoro' }) {
     <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-xl overflow-hidden">
       <audio ref={audioRef} />
 
-      {/* Header / Now Playing */}
+      {}
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-5 text-white">
         <div className="flex items-center gap-3 mb-4">
           <div className={`w-9 h-9 ${theme.iconBg} rounded-xl flex items-center justify-center`}>
@@ -170,7 +169,7 @@ export default function MusicPlayer({ mode = 'pomodoro' }) {
               </div>
             </div>
 
-            {/* Progress */}
+            {}
             <div className="space-y-1">
               <input type="range" min="0" max={duration || 0} value={currentTime} onChange={handleSeek}
                 className="w-full"
@@ -181,7 +180,7 @@ export default function MusicPlayer({ mode = 'pomodoro' }) {
               </div>
             </div>
 
-            {/* Playback Controls */}
+            {}
             <div className="flex items-center justify-center gap-4">
               <button onClick={() => setIsShuffle(!isShuffle)}
                 className={`p-2 rounded-lg transition-colors ${isShuffle ? `${theme.iconBg} ${theme.icon}` : 'text-slate-400 hover:bg-slate-700/50'}`}>
@@ -214,7 +213,7 @@ export default function MusicPlayer({ mode = 'pomodoro' }) {
         )}
       </div>
 
-      {/* Volume */}
+      {}
       <div className="px-5 py-3 bg-slate-800/30 border-b border-slate-700/40">
         <div className="flex items-center gap-3">
           <VolumeX className="w-4 h-4 text-slate-500 shrink-0" />
@@ -228,7 +227,7 @@ export default function MusicPlayer({ mode = 'pomodoro' }) {
         </div>
       </div>
 
-      {/* Playlist */}
+      {}
       <div className="p-5">
         <input ref={fileInputRef} type="file" accept="audio/*" multiple onChange={handleFileSelect} className="hidden" />
         <button id="btn-add-music" onClick={() => fileInputRef.current?.click()}

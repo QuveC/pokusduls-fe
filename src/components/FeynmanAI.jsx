@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { marked } from 'marked';
 
-/* ── Icons ───────────────────────────────────────────────────── */
 const UploadIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -52,7 +51,6 @@ const RefreshIcon = () => (
   </svg>
 );
 
-/* ── Supported extensions ─────────────────────────────────────── */
 const SUPPORTED_EXTENSIONS = ['.txt', '.pdf', '.docx', '.doc'];
 
 function getFileExt(name) {
@@ -69,7 +67,6 @@ function formatSize(bytes) {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-/* ── Read file as text ────────────────────────────────────────── */
 async function readFileContent(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -79,7 +76,6 @@ async function readFileContent(file) {
   });
 }
 
-/* ── N8N fetch ────────────────────────────────────────────────── */
 const N8N_WEBHOOK_URL = 'https://flounder-scarce-litter.ngrok-free.dev/webhook/study_assist';
 
 async function fetchFromN8n(textInput, sessionId) {
@@ -96,12 +92,9 @@ async function fetchFromN8n(textInput, sessionId) {
   return data[0]?.output || data.output || "Tidak ada respon.";
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   FEYNMAN AI COMPONENT
-═══════════════════════════════════════════════════════════════ */
 export default function FeynmanAI() {
-  const [files, setFiles] = useState([]);          // { name, size, content }
-  const [mode, setMode] = useState(null);          // 'summarize' | 'explain'
+  const [files, setFiles] = useState([]);          
+  const [mode, setMode] = useState(null);          
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -110,7 +103,7 @@ export default function FeynmanAI() {
   const fileInputRef = useRef(null);
   const sessionId = useRef("feynman_" + Math.random().toString(36).substring(2, 9));
 
-  /* ── File handling ── */
+  // File handling
   const processFiles = useCallback(async (fileList) => {
     const validExt = Array.from(fileList).filter(f => isSupported(f.name));
     if (validExt.length === 0) {
@@ -154,7 +147,7 @@ export default function FeynmanAI() {
     if (files.length <= 1) { setResult(''); setMode(null); }
   };
 
-  /* ── AI processing ── */
+  // AI processing
   const handleProcess = async (selectedMode) => {
     if (files.length === 0) return;
     setMode(selectedMode);
@@ -192,7 +185,7 @@ export default function FeynmanAI() {
     sessionId.current = "feynman_" + Math.random().toString(36).substring(2, 9);
   };
 
-  /* ── Styles ── */
+  // Styles
   const S = {
     section: {
       background: 'rgba(6,182,212,0.04)',
@@ -217,7 +210,7 @@ export default function FeynmanAI() {
 
   return (
     <div>
-      {/* ── Section Title ── */}
+      {
       <div style={{ marginBottom: '20px' }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: '10px',
@@ -246,7 +239,7 @@ export default function FeynmanAI() {
         </div>
       </div>
 
-      {/* ── Upload Zone ── */}
+      {
       <div
         style={{
           ...S.section,
@@ -290,7 +283,7 @@ export default function FeynmanAI() {
         </p>
       </div>
 
-      {/* ── Error ── */}
+      {
       {error && (
         <div style={{
           background: 'rgba(239,68,68,0.08)',
@@ -305,7 +298,7 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {/* ── File List ── */}
+      {
       {files.length > 0 && (
         <div style={{ marginBottom: '16px' }}>
           <p style={{ ...S.label }}>
@@ -363,10 +356,10 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {/* ── Mode Selection ── */}
+      {
       {files.length > 0 && !loading && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
-          {/* Summarize */}
+          {}
           <button
             onClick={() => handleProcess('summarize')}
             style={{
@@ -393,7 +386,7 @@ export default function FeynmanAI() {
             </div>
           </button>
 
-          {/* Explain Simply */}
+          {}
           <button
             onClick={() => handleProcess('explain')}
             style={{
@@ -422,7 +415,7 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {/* ── Loading ── */}
+      {
       {loading && (
         <div style={{
           background: 'rgba(6,182,212,0.05)',
@@ -448,7 +441,7 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {/* ── Result ── */}
+      {
       {result && !loading && (
         <div style={{
           background: 'rgba(255,255,255,0.03)',
@@ -456,7 +449,7 @@ export default function FeynmanAI() {
           borderRadius: '18px',
           overflow: 'hidden',
         }}>
-          {/* Result header */}
+          {}
           <div style={{
             background: mode === 'summarize'
               ? 'linear-gradient(135deg, rgba(6,182,212,0.1), rgba(8,145,178,0.08))'
@@ -506,7 +499,7 @@ export default function FeynmanAI() {
             </div>
           </div>
 
-          {/* Result content */}
+          {}
           <div
             style={{
               padding: '20px 22px',
@@ -521,7 +514,7 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {/* ── Reset button ── */}
+      {
       {(files.length > 0 || result) && !loading && (
         <button
           onClick={handleReset}

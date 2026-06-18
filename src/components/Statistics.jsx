@@ -27,7 +27,6 @@ export default function Statistics() {
       minutes: history.filter(s => new Date(s.date).toDateString() === date.toDateString()).reduce((a, s) => a + s.duration, 0),
     })));
 
-    // Data global dari backend (XP, streak, dll)
     if (userId) {
       setLoadingApi(true);
       getStatistics(parseInt(userId))
@@ -60,7 +59,7 @@ export default function Statistics() {
 
   return (
     <div className="space-y-5">
-      {/* Stat Cards lokal */}
+      {}
       <div className="grid grid-cols-2 gap-3">
         {statCards.map(({ label, value, Icon, color, bg }) => (
           <div key={label} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
@@ -73,7 +72,7 @@ export default function Statistics() {
         ))}
       </div>
 
-      {/* Stats dari backend (XP & Streak) */}
+      {}
       {localStorage.getItem('pokus-user-id') && (
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5">
           <h2 className="text-white font-semibold mb-4">Progress Global</h2>
@@ -124,7 +123,7 @@ export default function Statistics() {
         </div>
       )}
 
-      {/* Weekly Chart */}
+      {}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5">
         <h2 className="text-white font-semibold mb-5">Aktivitas 7 Hari Terakhir</h2>
         {weekData.some(d => d.minutes > 0) ? (
@@ -157,7 +156,7 @@ export default function Statistics() {
         )}
       </div>
 
-      {/* History */}
+      {}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5">
         <h2 className="text-white font-semibold mb-4">Riwayat Sesi Terbaru</h2>
         {sessions.length > 0 ? (

@@ -5,8 +5,8 @@ import Timer from '../components/Timer.jsx';
 import Statistics from '../components/Statistics.jsx';
 import Reminder from '../components/Reminder.jsx';
 import AIPage from '../components/AIPage.jsx';
+import GlobalAlarm from '../components/GlobalAlarm.jsx';
 
-// ── Logout Confirmation Modal ─────────────────────────────────────────────────
 function LogoutModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
@@ -33,7 +33,6 @@ function LogoutModal({ onConfirm, onCancel }) {
   );
 }
 
-// ── Navigation Guard Modal ────────────────────────────────────────────────────
 function NavGuardModal({ targetPage, onConfirm, onCancel }) {
   const pageNames = {
     statistics: 'Statistik',
@@ -53,12 +52,12 @@ function NavGuardModal({ targetPage, onConfirm, onCancel }) {
           </p>
         </div>
         <div className="flex gap-3">
-          {/* "Tidak" — safe/neutral */}
+          {}
           <button onClick={onCancel}
             className="flex-1 py-3 bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 rounded-xl text-sm font-semibold hover:bg-emerald-500/25 transition-all">
             Tidak, Lanjut
           </button>
-          {/* "Ya" — destructive */}
+          {}
           <button onClick={onConfirm}
             className="flex-1 py-3 bg-gradient-to-r from-red-500/80 to-rose-600/80 border border-red-500/40 text-white rounded-xl text-sm font-semibold hover:from-red-500 hover:to-rose-600 hover:shadow-lg hover:shadow-red-500/20 transition-all">
             Ya, Berhenti
@@ -69,12 +68,11 @@ function NavGuardModal({ targetPage, onConfirm, onCancel }) {
   );
 }
 
-// ── Dashboard ─────────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState('timer');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
-  const [navGuard, setNavGuard] = useState(null); // null | 'statistics' | 'reminder'
+  const [navGuard, setNavGuard] = useState(null); 
   const timerRef = useRef(null);
   const navigate = useNavigate();
 
@@ -95,23 +93,21 @@ export default function Dashboard() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [timerRunning, currentPage]); // eslint-disable-line
+  }, [timerRunning, currentPage]); 
 
-  // Called when user taps a nav item
   const tryNavigate = useCallback((id) => {
     if (id === currentPage) return;
-    // AI page is always accessible even while timer runs
-    // Timer page is always accessible
+
     const freePages = ['timer', 'ai'];
     if (timerRunning && !freePages.includes(id)) {
-      setNavGuard(id); // show warning
+      setNavGuard(id); 
     } else {
       setCurrentPage(id);
     }
   }, [timerRunning, currentPage]);
 
   const confirmNav = () => {
-    timerRef.current?.stop(); // reset & stop timer without saving to history
+    timerRef.current?.stop(); 
     setCurrentPage(navGuard);
     setNavGuard(null);
   };
@@ -128,7 +124,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen pb-24" style={{ background: 'linear-gradient(135deg, #080d1a 0%, #0d1530 50%, #080d1a 100%)' }}>
 
-      {/* Header */}
+      {}
       <div style={{
         background: 'rgba(10, 15, 30, 0.85)',
         backdropFilter: 'blur(24px)',
@@ -145,7 +141,7 @@ export default function Dashboard() {
             <p className="text-xs mt-0.5" style={{ color: 'rgba(16,185,129,0.7)' }}>Aplikasi Produktivitas Belajar</p>
           </div>
 
-          {/* Running indicator */}
+          {}
           {timerRunning && currentPage !== 'timer' && (
             <button onClick={() => setCurrentPage('timer')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-300 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all animate-pulse">
@@ -175,8 +171,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Main Content */}
-      {/* Timer is ALWAYS mounted so the interval + proctoring never stops */}
+      {}
+      <GlobalAlarm />
+      {}
       <main className="px-5 py-6 max-w-2xl mx-auto">
         <div style={{ display: currentPage === 'timer' ? 'block' : 'none' }}>
           <Timer ref={timerRef} onRunningChange={setTimerRunning} />
@@ -186,7 +183,7 @@ export default function Dashboard() {
         {currentPage === 'ai'         && <AIPage />}
       </main>
 
-      {/* Bottom Nav */}
+      {}
       <nav style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
         background: 'rgba(10, 15, 30, 0.95)',
@@ -224,7 +221,7 @@ export default function Dashboard() {
                 {isActive && (
                   <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#10b981', marginTop: '1px' }} />
                 )}
-                {/* Lock badge when timer is running */}
+                {}
                 {isLocked && !isActive && (
                   <span style={{
                     position: 'absolute', top: 4, right: 8,
@@ -238,12 +235,12 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      {/* Logout Modal */}
+      {}
       {showLogoutModal && (
         <LogoutModal onConfirm={handleLogout} onCancel={() => setShowLogoutModal(false)} />
       )}
 
-      {/* Navigation Guard Modal */}
+      {}
       {navGuard && (
         <NavGuardModal
           targetPage={navGuard}

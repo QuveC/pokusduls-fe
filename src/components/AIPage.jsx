@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 
-/* ── Icons ───────────────────────────────────────────────────── */
 const SendIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="22" y1="2" x2="11" y2="13" />
@@ -34,7 +33,6 @@ const SparkleIcon = () => (
   </svg>
 );
 
-/* ── Quick Prompt Suggestions ────────────────────────────────── */
 const QUICK_PROMPTS = [
   { label: "Jelaskan konsep", text: "Jelaskan konsep fotosintesis dengan bahasa yang mudah dipahami" },
   { label: "Bantu belajar", text: "Bagaimana cara terbaik untuk belajar matematika secara efektif?" },
@@ -42,7 +40,6 @@ const QUICK_PROMPTS = [
   { label: "Buat soal latihan", text: "Buatkan 5 soal latihan tentang hukum Newton beserta jawabannya" },
 ];
 
-/* ── Main Component ──────────────────────────────────────────── */
 const AIPage = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -58,7 +55,7 @@ const AIPage = () => {
   useEffect(() => { scrollToBottom(); }, [messages, isTyping]);
 
   const fetchFromN8n = async (textInput) => {
-    const N8N_WEBHOOK_URL = 'https://flounder-scarce-litter.ngrok-free.dev/webhook/study_assist';
+    const N8N_WEBHOOK_URL = 'https:
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: {
@@ -112,7 +109,7 @@ const AIPage = () => {
       height: 'calc(100vh - 130px)',
       maxHeight: '700px',
     }}>
-      {/* ── Chat Header ── */}
+      {
       <div style={{
         background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 100%)',
         border: '1px solid rgba(16,185,129,0.2)',
@@ -176,7 +173,7 @@ const AIPage = () => {
         )}
       </div>
 
-      {/* ── Messages Area ── */}
+      {
       <div style={{
         flex: 1,
         overflowY: 'auto',
@@ -188,7 +185,7 @@ const AIPage = () => {
         scrollbarColor: 'rgba(16,185,129,0.2) transparent',
       }}>
 
-        {/* Empty state with quick prompts */}
+        {}
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
             <div style={{
@@ -210,12 +207,21 @@ const AIPage = () => {
               Asisten belajar AI yang siap membantu kamu
             </p>
 
-            {/* Quick Prompts */}
+            {}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               {QUICK_PROMPTS.map((qp, i) => (
                 <button
                   key={i}
-                  onClick={() => handleSend(qp.text)}
+                  onClick={() => {
+                    setInput(qp.text);
+                    setTimeout(() => {
+                      if (inputRef.current) {
+                        inputRef.current.focus();
+                        inputRef.current.style.height = 'auto';
+                        inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px';
+                      }
+                    }, 0);
+                  }}
                   style={{
                     background: 'rgba(16,185,129,0.07)',
                     border: '1px solid rgba(16,185,129,0.18)',
@@ -251,7 +257,7 @@ const AIPage = () => {
           </div>
         )}
 
-        {/* Messages */}
+        {}
         {messages.map((msg, idx) => (
           <div key={idx} style={{
             display: 'flex',
@@ -260,7 +266,7 @@ const AIPage = () => {
             alignItems: 'flex-start',
             animation: 'slide-up 0.25s ease-out',
           }}>
-            {/* Avatar */}
+            {}
             {msg.sender === 'ai' && (
               <div style={{
                 width: '32px', height: '32px',
@@ -273,7 +279,7 @@ const AIPage = () => {
               </div>
             )}
 
-            {/* Bubble */}
+            {}
             <div style={{
               maxWidth: '78%',
               padding: '12px 16px',
@@ -292,7 +298,7 @@ const AIPage = () => {
           </div>
         ))}
 
-        {/* Typing indicator */}
+        {}
         {isTyping && (
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <div style={{
@@ -321,7 +327,7 @@ const AIPage = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ── Input Area ── */}
+      {
       <div style={{
         borderTop: '1px solid rgba(255,255,255,0.07)',
         paddingTop: '16px',

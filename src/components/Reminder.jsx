@@ -21,7 +21,6 @@ function nowHMS() {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-// ── Audio helpers ──────────────────────────────────────────────────────────────
 function playBeep() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -32,7 +31,7 @@ function playBeep() {
     gain.gain.setValueAtTime(0.3, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
     osc.start(); osc.stop(ctx.currentTime + 0.8);
-  } catch { /* not supported */ }
+  } catch {  }
 }
 
 function playSound(soundData) {
@@ -42,32 +41,25 @@ function playSound(soundData) {
       audio.volume = 0.8;
       audio.play().catch(() => playBeep());
       return;
-    } catch { /* fall through */ }
+    } catch {  }
   }
   playBeep();
 }
 
-// ── Notification helper ────────────────────────────────────────────────────────
 function notify(title, body, id) {
   if (Notification.permission !== 'granted') return;
   try { new Notification(title, { body, tag: id, icon: '/favicon.ico' }); }
   catch (e) { console.warn('Notification error', e); }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// TIME SPINNER — top-level component (NOT nested inside another component)
-// This is critical: defining it inside another component causes remount on every
-// render, resetting all refs and state (the original "anomali" bug).
-// ══════════════════════════════════════════════════════════════════════════════
 function TimeSpinner({ label, value, min, max, onChange }) {
-  // Always keep a ref in sync so hold-repeat and wheel never read stale closures
+
   const valueRef   = useRef(value);
   valueRef.current = value;
 
   const intervalRef = useRef(null);
   const timeoutRef  = useRef(null);
 
-  // Circular wrap: e.g. 59+1 → 0, 0-1 → 59
   const wrap = (v) => {
     const range = max - min + 1;
     return ((v - min) % range + range) % range + min;
@@ -75,7 +67,7 @@ function TimeSpinner({ label, value, min, max, onChange }) {
 
   const step = (dir) => {
     const next = wrap(valueRef.current + dir);
-    valueRef.current = next;   // update ref immediately for rapid sequential calls
+    valueRef.current = next;   
     onChange(next);
   };
 
@@ -91,18 +83,17 @@ function TimeSpinner({ label, value, min, max, onChange }) {
     clearInterval(intervalRef.current);
   };
 
-
   const touchStartY = useRef(null);
   const handleTouchStart = (e) => {
     touchStartY.current = e.touches[0].clientY;
   };
   const handleTouchMove = (e) => {
-    e.preventDefault(); // prevent page scroll while swiping spinner
+    e.preventDefault(); 
     if (touchStartY.current === null) return;
     const dy = touchStartY.current - e.touches[0].clientY;
     if (Math.abs(dy) >= 20) {
       step(dy > 0 ? 1 : -1);
-      touchStartY.current = e.touches[0].clientY; // reset so each 20px = 1 step
+      touchStartY.current = e.touches[0].clientY; 
     }
   };
   const handleTouchEnd = () => {
@@ -121,7 +112,7 @@ function TimeSpinner({ label, value, min, max, onChange }) {
         onTouchEnd={handleTouchEnd}
         style={{ touchAction: 'none' }}
       >
-        {/* Up button */}
+        {}
         <button
           type="button"
           onMouseDown={() => startHold(1)}
@@ -132,9 +123,33 @@ function TimeSpinner({ label, value, min, max, onChange }) {
           ▲
         </button>
 
-        {/* Value display */}
-        <div className="px-6 py-2 border-y border-slate-700/60 bg-slate-700/30 w-full text-center">
-          <span className="text-white font-bold text-2xl tabular-nums leading-none">{pad(value)}</span>
+        {}
+        <div className="px-6 py-2 border-y border-slate-700/60 bg-slate-700/30 w-full text-center flex justify-center">
+          <input
+            type="text"
+            inputMode="numeric"
+            value={valueRef.current} 
+            onChange={(e) => {
+              const val = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10);
+              if (!isNaN(val)) {
+                let clamped = val;
+                if (clamped > max) clamped = max;
+                if (clamped < min) clamped = min;
+                onChange(clamped);
+              }
+            }}
+            onBlur={(e) => {
+              let val = parseInt(e.target.value, 10);
+              if (isNaN(val)) val = min;
+              if (val > max) val = max;
+              if (val < min) val = min;
+              onChange(val);
+              e.target.value = pad(val); // Reformat on blur
+            }}
+            onFocus={(e) => e.target.select()}
+            ref={(el) => { if (el && document.activeElement !== el) el.value = pad(value); }}
+            className="w-12 bg-transparent text-center text-white font-bold text-2xl tabular-nums leading-none focus:outline-none focus:bg-slate-800/50 rounded"
+          />
         </div>
 
         {/* Down button */}
@@ -152,9 +167,7 @@ function TimeSpinner({ label, value, min, max, onChange }) {
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // ADD / EDIT REMINDER FORM
-// ══════════════════════════════════════════════════════════════════════════════
 function ReminderForm({ initial, onSave, onCancel }) {
   const [hour,      setHour]      = useState(() => initial?.time ? parseInt(initial.time.split(':')[0]) : 9);
   const [minute,    setMinute]    = useState(() => initial?.time ? parseInt(initial.time.split(':')[1]) : 0);
@@ -192,7 +205,7 @@ function ReminderForm({ initial, onSave, onCancel }) {
         {initial ? 'Edit Pengingat' : 'Pengingat Baru'}
       </h3>
 
-      {/* ── Time Spinners ── */}
+      {
       <div>
         <label className="block text-slate-400 text-xs mb-3">Waktu Pengingat</label>
         <div className="flex items-start justify-center gap-3">
@@ -207,7 +220,7 @@ function ReminderForm({ initial, onSave, onCancel }) {
         </p>
       </div>
 
-      {/* ── Message ── */}
+      {
       <div>
         <label className="block text-slate-400 text-xs mb-1.5">Pesan Pengingat</label>
         <input
@@ -220,7 +233,7 @@ function ReminderForm({ initial, onSave, onCancel }) {
         />
       </div>
 
-      {/* ── Sound Upload ── */}
+      {
       <div>
         <label className="block text-slate-400 text-xs mb-2">Suara Alarm</label>
         <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={handleFileUpload} />
@@ -230,7 +243,7 @@ function ReminderForm({ initial, onSave, onCancel }) {
           <p className={`flex-1 text-xs truncate ${soundData ? 'text-emerald-300' : 'text-slate-500'}`}>
             {soundData ? soundName : 'Suara bawaan (beep)'}
           </p>
-          {/* Preview */}
+          {}
           <button
             type="button"
             onClick={() => playSound(soundData)}
@@ -239,7 +252,7 @@ function ReminderForm({ initial, onSave, onCancel }) {
           >
             <Play className={`w-3.5 h-3.5 ${soundData ? 'text-emerald-400' : 'text-slate-400'}`} />
           </button>
-          {/* Remove custom sound */}
+          {}
           {soundData && (
             <button
               type="button"
@@ -262,7 +275,7 @@ function ReminderForm({ initial, onSave, onCancel }) {
         </button>
       </div>
 
-      {/* ── Buttons ── */}
+      {
       <div className="flex gap-3">
         <button
           type="button"
@@ -284,9 +297,6 @@ function ReminderForm({ initial, onSave, onCancel }) {
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// MAIN REMINDER COMPONENT
-// ══════════════════════════════════════════════════════════════════════════════
 export default function Reminder() {
   const [reminders, setReminders] = useState(load);
   const [showForm,  setShowForm]  = useState(false);
@@ -294,34 +304,17 @@ export default function Reminder() {
   const [notifPerm, setNotifPerm] = useState(() =>
     'Notification' in window ? Notification.permission : 'unsupported'
   );
-  const [lastFired, setLastFired] = useState({});
-
-  const remindersRef = useRef(reminders);
-  const lastFiredRef = useRef(lastFired);
-  useEffect(() => { remindersRef.current = reminders; }, [reminders]);
-  useEffect(() => { lastFiredRef.current = lastFired; }, [lastFired]);
-
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
   }, [reminders]);
 
-  // Check every second for second-level precision
-  const checkReminders = useCallback(() => {
-    const cur = nowHMS();
-    remindersRef.current.forEach(r => {
-      if (!r.enabled) return;
-      if (r.time !== cur) return;
-      if (lastFiredRef.current[r.id] === cur) return;
-      setLastFired(prev => ({ ...prev, [r.id]: cur }));
-      notify('PokusDuls — Pengingat Belajar', r.message, r.id);
-      playSound(r.soundData);
-    });
-  }, []);
-
   useEffect(() => {
-    const id = setInterval(checkReminders, 1000);
-    return () => clearInterval(id);
-  }, [checkReminders]);
+    const handleUpdate = () => {
+      setReminders(load());
+    };
+    window.addEventListener('pokus-reminders-updated', handleUpdate);
+    return () => window.removeEventListener('pokus-reminders-updated', handleUpdate);
+  }, []);
 
   const reqPerm = async () => {
     if (!('Notification' in window)) return;
@@ -355,7 +348,7 @@ export default function Reminder() {
   return (
     <div className="space-y-4">
 
-      {/* ── Header ── */}
+      {
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
         <div className="flex items-start gap-4 mb-4">
           <div className="w-11 h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center shrink-0">
@@ -399,21 +392,20 @@ export default function Reminder() {
         )}
       </div>
 
-      {/* ── Add Form ── */}
+      {
       {showForm && (
         <ReminderForm onSave={handleAdd} onCancel={() => setShowForm(false)} />
       )}
 
-      {/* ── Edit Form ── */}
+      {
       {editId && editingReminder && (
         <ReminderForm initial={editingReminder} onSave={handleEdit} onCancel={() => setEditId(null)} />
       )}
 
-      {/* ── Reminder List ── */}
+      {
       <div className="space-y-3">
         {reminders.map(r => {
           const TIcon = getIcon(r.time);
-          const firedNow = lastFired[r.id] === nowHMS();
           return (
             <div key={r.id}
               className={`bg-slate-800/50 border rounded-xl p-4 transition-all ${r.enabled ? 'border-emerald-500/40' : 'border-slate-700/50'}`}>
@@ -427,11 +419,6 @@ export default function Reminder() {
                     <p className={`text-xl font-bold tabular-nums ${r.enabled ? 'text-white' : 'text-slate-500'}`}>
                       {r.time}
                     </p>
-                    {firedNow && (
-                      <span className="text-[10px] px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-full animate-pulse">
-                        Baru berbunyi
-                      </span>
-                    )}
                   </div>
                   <p className={`text-xs truncate ${r.enabled ? 'text-slate-400' : 'text-slate-600'}`}>{r.message}</p>
                   <p className="text-[10px] mt-0.5 flex items-center gap-1">
@@ -443,22 +430,22 @@ export default function Reminder() {
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
-                  {/* Preview */}
+                  {}
                   <button onClick={() => playSound(r.soundData)} title="Preview suara"
                     className="p-2 text-slate-400 hover:bg-slate-700/50 rounded-lg transition-colors">
                     <Play className="w-4 h-4" />
                   </button>
-                  {/* Edit */}
+                  {}
                   <button onClick={() => { setEditId(r.id); setShowForm(false); }} title="Edit"
                     className="p-2 text-slate-400 hover:bg-slate-700/50 rounded-lg transition-colors">
                     <Bell className="w-4 h-4" />
                   </button>
-                  {/* Delete */}
+                  {}
                   <button onClick={() => del(r.id)}
                     className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-all border border-red-500/20">
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  {/* Toggle */}
+                  {}
                   <button onClick={() => toggle(r.id)}
                     className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all ${r.enabled ? 'bg-emerald-500' : 'bg-slate-700'}`}>
                     <span className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform ${r.enabled ? 'translate-x-7' : 'translate-x-1'}`} />
@@ -470,7 +457,7 @@ export default function Reminder() {
         })}
       </div>
 
-      {/* ── Add Button ── */}
+      {
       {!showForm && !editId && (
         <button id="btn-add-reminder" onClick={() => setShowForm(true)}
           className="w-full px-5 py-4 bg-slate-800/30 border-2 border-dashed border-slate-600 text-slate-400 rounded-xl hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-slate-800/50 transition-all flex items-center justify-center gap-2 text-sm">
@@ -478,7 +465,7 @@ export default function Reminder() {
         </button>
       )}
 
-      {/* ── Tips ── */}
+      {
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
         <h3 className="text-white font-semibold mb-3">💡 Tips</h3>
         <ul className="space-y-1.5 text-slate-400 text-sm">
@@ -492,7 +479,6 @@ export default function Reminder() {
   );
 }
 
-// ── Live Clock ────────────────────────────────────────────────────────────────
 function LiveClock() {
   const [now, setNow] = useState(new Date());
   useEffect(() => {

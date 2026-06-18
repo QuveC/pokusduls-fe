@@ -17,7 +17,6 @@ function saveDecks(decks) {
   localStorage.setItem(getStorageKey(), JSON.stringify(decks));
 }
 
-// ─── Flip Card ───────────────────────────────────────────────────────────────
 function FlipCard({ front, back, index, total, onKnow, onDontKnow }) {
   const [flipped, setFlipped] = useState(false);
 
@@ -27,7 +26,7 @@ function FlipCard({ front, back, index, total, onKnow, onDontKnow }) {
     <div className="flex flex-col items-center gap-5">
       <p className="text-slate-400 text-sm">{index + 1} / {total}</p>
 
-      {/* 3D Flip container */}
+      {}
       <div
         className="w-full cursor-pointer"
         style={{ perspective: '1200px' }}
@@ -42,7 +41,7 @@ function FlipCard({ front, back, index, total, onKnow, onDontKnow }) {
             height: '200px',
           }}
         >
-          {/* Front */}
+          {}
           <div
             style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 border border-purple-500/30 rounded-lg flex flex-col items-center justify-center p-6 shadow-2xl shadow-purple-500/10"
@@ -54,7 +53,7 @@ function FlipCard({ front, back, index, total, onKnow, onDontKnow }) {
             <p className="text-slate-500 text-xs mt-4">Ketuk untuk balik kartu</p>
           </div>
 
-          {/* Back */}
+          {}
           <div
             style={{
               backfaceVisibility: 'hidden',
@@ -71,7 +70,7 @@ function FlipCard({ front, back, index, total, onKnow, onDontKnow }) {
         </div>
       </div>
 
-      {/* Action buttons — only show when flipped */}
+      {}
       <div
         style={{
           opacity: flipped ? 1 : 0,
@@ -98,7 +97,6 @@ function FlipCard({ front, back, index, total, onKnow, onDontKnow }) {
   );
 }
 
-// ─── Study Mode ───────────────────────────────────────────────────────────────
 function StudyMode({ deck, onBack }) {
   const [idx, setIdx] = useState(0);
   const [known, setKnown] = useState(0);
@@ -147,7 +145,7 @@ function StudyMode({ deck, onBack }) {
             <span className="text-slate-400 text-sm">Skor</span>
             <span className={`font-bold text-lg ${pct >= 80 ? 'text-emerald-400' : pct >= 50 ? 'text-amber-400' : 'text-red-400'}`}>{pct}%</span>
           </div>
-          {/* Progress bar */}
+          {}
           <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all"
@@ -180,7 +178,7 @@ function StudyMode({ deck, onBack }) {
         </div>
       </div>
 
-      {/* Progress bar */}
+      {}
       <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
@@ -200,7 +198,6 @@ function StudyMode({ deck, onBack }) {
   );
 }
 
-// ─── Add Card Form ─────────────────────────────────────────────────────────────
 function AddCardForm({ onAdd, onCancel }) {
   const [front, setFront] = useState('');
   const [back, setBack] = useState('');
@@ -248,7 +245,7 @@ function AddCardForm({ onAdd, onCancel }) {
   );
 }
 
-// ─── Deck Detail ───────────────────────────────────────────────────────────────
+// Deck Detail
 function DeckDetail({ deck, onBack, onUpdate }) {
   const [showAddCard, setShowAddCard] = useState(false);
   const [studying, setStudying] = useState(false);
@@ -321,7 +318,7 @@ function DeckDetail({ deck, onBack, onUpdate }) {
           {deck.cards.map((card, i) => (
             <div key={card.id}>
               {editingCardId === card.id ? (
-                /* ── Inline Edit Form ── */
+                // Inline Edit Form
                 <div className="bg-slate-800/80 border border-purple-500/40 rounded-lg p-4 space-y-3">
                   <p className="text-purple-400 text-xs font-semibold">Edit Kartu {i + 1}</p>
                   <div>
@@ -359,7 +356,7 @@ function DeckDetail({ deck, onBack, onUpdate }) {
                   </div>
                 </div>
               ) : (
-                /* ── Normal Card Row ── */
+                // Normal Card Row
                 <div className="bg-slate-800/60 border border-slate-700/40 rounded-lg p-3.5 flex items-start gap-3 group hover:border-slate-600/60 transition-all">
                   <div className="w-6 h-6 bg-purple-500/20 rounded-md flex items-center justify-center shrink-0 mt-0.5">
                     <span className="text-purple-400 text-[10px] font-bold">{i + 1}</span>
@@ -413,7 +410,7 @@ function DeckDetail({ deck, onBack, onUpdate }) {
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────────────────
+// Main Component
 export default function FlashcardManager({ onClose }) {
   const [decks, setDecks] = useState(loadDecks);
   const [activeDeck, setActiveDeck] = useState(null);

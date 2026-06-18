@@ -67,7 +67,7 @@ export default function ModeCarousel({ currentMode, onModeChange }) {
         </div>
       </div>
 
-      {/* Dots */}
+      {}
       <div className="flex justify-center gap-2 mt-5">
         {modes.map((m, i) => (
           <button key={m.id} onClick={() => { setIdx(i); onModeChange(m.id); }}

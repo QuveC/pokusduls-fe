@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 
 const BACKEND_URL = 'http://127.0.0.1:8000/';
-// Kirim frame ke backend setiap 800ms
+
 const DETECT_INTERVAL_MS = 800;
 
 export default function FocusDetectorMini({ isActive, onFocusChange, onDistractionDetected }) {
@@ -14,26 +14,23 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
   const [error, setError]                   = useState(null);
   const [isMinimized, setIsMinimized]       = useState(false);
   const [distractionCount, setDistractionCount] = useState(0);
-  const [detectionResult, setDetectionResult] = useState(null); // hasil lengkap dari backend
-  const [backendOnline, setBackendOnline]   = useState(null);   // null=belum dicek, true/false
+  const [detectionResult, setDetectionResult] = useState(null); 
+  const [backendOnline, setBackendOnline]   = useState(null);   
 
   const videoRef    = useRef(null);
   const canvasRef   = useRef(null);
   const streamRef   = useRef(null);
-  const timerRef    = useRef(null);   // setInterval handle
+  const timerRef    = useRef(null);   
   const lastFocusRef = useRef(true);
-  const isDetecting  = useRef(false); // hindari request tumpang tindih
+  const isDetecting  = useRef(false); 
 
-  // ── aktif/nonaktif mengikuti prop isActive ───────────────────────
   useEffect(() => {
     if (isActive && !isEnabled) startDetection();
     else if (!isActive && isEnabled) stopDetection();
   }, [isActive]);
 
-  // ── cleanup saat unmount ─────────────────────────────────────────
   useEffect(() => () => stopDetection(), []);
 
-  // ── cek apakah backend hidup ─────────────────────────────────────
   const checkBackend = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/health`, { signal: AbortSignal.timeout(3000) });
@@ -45,7 +42,6 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
     }
   };
 
-  // ── mulai kamera + loop deteksi ──────────────────────────────────
   const startDetection = async () => {
     try {
       setError(null);
@@ -59,20 +55,17 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
       }
       setIsEnabled(true);
 
-      // cek backend
       const online = await checkBackend();
       if (!online) {
         setError('Backend tidak tersambung. Jalankan: uvicorn main:app --reload');
       }
 
-      // mulai loop pengiriman frame
       timerRef.current = setInterval(sendFrame, DETECT_INTERVAL_MS);
     } catch {
       setError('Tidak bisa mengakses kamera');
     }
   };
 
-  // ── hentikan kamera + loop ───────────────────────────────────────
   const stopDetection = () => {
     clearInterval(timerRef.current);
     timerRef.current = null;
@@ -85,9 +78,8 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
     setBackendOnline(null);
   };
 
-  // ── capture frame → kirim ke backend ────────────────────────────
   const sendFrame = async () => {
-    if (isDetecting.current) return;                      // skip jika request sebelumnya belum selesai
+    if (isDetecting.current) return;                      
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
     if (video.readyState < video.HAVE_ENOUGH_DATA) return;
@@ -100,7 +92,6 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // ambil sebagai base64 JPEG (quality 0.85 agar lebih detail untuk YOLO)
       const base64 = canvas.toDataURL('image/jpeg', 0.85);
 
       const res = await fetch(`${BACKEND_URL}/monitoring/detect-frame`, {
@@ -129,7 +120,7 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
       }
     } catch (err) {
       console.error('sendFrame error:', err);
-      // backend mati atau timeout → fallback ke pixel detection
+
       setBackendOnline(false);
       setError(err.message ?? 'Gagal menghubungi backend');
       fallbackPixelDetect();
@@ -138,7 +129,6 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
     }
   };
 
-  // ── fallback pixel-based (jika backend mati) ─────────────────────
   const fallbackPixelDetect = () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current, canvas = canvasRef.current;
@@ -165,7 +155,6 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
     }
   };
 
-  // ── helper label distraksi ───────────────────────────────────────
   const getDistractionLabel = () => {
     if (!detectionResult) return isFocused ? '✓ Wajah terdeteksi' : '✗ Tidak fokus';
     const t = detectionResult.distraction_type;
@@ -186,11 +175,10 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
 
   if (!isActive) return null;
 
-  // ── RENDER ───────────────────────────────────────────────────────
   return (
     <div className="fixed bottom-20 right-4 z-40">
 
-      {/* ── Mode minimized ── */}
+      {
       {isMinimized ? (
         <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-3 shadow-2xl">
           <div className="flex items-center gap-2">
@@ -210,10 +198,10 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
         </div>
 
       ) : (
-        /* ── Mode expanded ── */
+
         <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden" style={{ width: '260px' }}>
 
-          {/* Header */}
+          {}
           <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-b border-purple-500/20 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
@@ -232,7 +220,7 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
             </button>
           </div>
 
-          {/* Video feed */}
+          {}
           <div className="relative bg-slate-950" style={{ aspectRatio: '4/3' }}>
             <video ref={videoRef} className={`w-full h-full object-cover ${!isEnabled ? 'hidden' : ''}`} playsInline muted />
             <canvas ref={canvasRef} className="hidden" />
@@ -249,7 +237,7 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
 
             {isEnabled && (
               <div className="absolute top-2 left-2 right-2 space-y-1">
-                {/* Status badge */}
+                {}
                 <div className={`px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-xl border flex items-center gap-1.5 ${
                   isFocused
                     ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
@@ -259,7 +247,7 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
                   {getDistractionLabel()}
                 </div>
 
-                {/* Yaw angle */}
+                {}
                 {detectionResult && (
                   <div className="space-y-0.5">
                     <div className="px-2 py-0.5 rounded-md text-[10px] bg-slate-900/70 border border-slate-700/50 text-slate-400 backdrop-blur-xl">
@@ -274,7 +262,7 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
             )}
           </div>
 
-          {/* Stats */}
+          {}
           <div className="px-4 py-3 space-y-1.5">
             <div className="flex justify-between items-center">
               <span className="text-slate-400 text-xs">Status</span>
@@ -294,7 +282,7 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
                 </span>
               </div>
             )}
-            {/* Tampilkan error dari backend jika ada */}
+            {}
             {detectionResult?.error && (
               <div className="mt-1 px-2 py-1 bg-red-500/10 border border-red-500/20 rounded-lg">
                 <p className="text-red-400 text-[10px] break-all">⚠ {detectionResult.error}</p>
@@ -302,7 +290,7 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
             )}
           </div>
 
-          {/* Toggle button */}
+          {}
           <div className="px-4 pb-3">
             <button
               onClick={isEnabled ? stopDetection : startDetection}
@@ -320,7 +308,7 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
             </button>
           </div>
 
-          {/* Backend status */}
+          {}
           <div className="px-4 pb-4">
             {backendOnline === false ? (
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-2">

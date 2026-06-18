@@ -98,8 +98,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
     }
   }, [timeLeft, isRunning]);
 
-  // Notify parent when running state changes so Dashboard can gate navigation
-  useEffect(() => { onRunningChange?.(isRunning); }, [isRunning]); // eslint-disable-line
+  useEffect(() => { onRunningChange?.(isRunning); }, [isRunning]); 
 
   useEffect(() => {
 
@@ -122,15 +121,13 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
     const userId = localStorage.getItem('pokus-user-id');
     const historyKey = userId ? `pokus-history-${userId}` : 'pokus-history-guest';
 
-    // Simpan ke localStorage (lokal)
     const h = JSON.parse(localStorage.getItem(historyKey) || '[]');
     h.push({ date: new Date().toISOString(), duration: dur, mode });
     localStorage.setItem(historyKey, JSON.stringify(h));
 
-    // Kirim ke backend jika user sudah login
     if (userId) {
       try {
-        const xpGained = Math.floor(dur * 2); // 2 XP per menit
+        const xpGained = Math.floor(dur * 2); 
         await completeSession({ user_id: userId, duration: dur, method_type: mode });
         await updateStatistics(userId, { xp_gained: xpGained, session_completed: true });
       } catch (e) {
@@ -158,7 +155,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
   };
 
   const handleStart = () => {
-    // If no tree picked yet for this session, show picker first
+
     if (!treeType && (sessionType === 'focus' || mode !== 'pomodoro')) {
       setShowTreePicker(true);
       return;
@@ -168,12 +165,12 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
   const handlePause = () => setIsRunning(false);
   const handleStop = () => {
     setIsRunning(false); setFocusProgress(0); setTabSwitchCount(0); setShowFocusWarning(false);
-    setTreeType(null); // reset so next session requires picking again
+    setTreeType(null); 
     if (mode === 'pomodoro') { setTimeLeft(settings.focusDuration * 60); setSessionType('focus'); setCycleCount(0); }
     else if (mode === 'feynman') { setFeynmanStep('learn'); setTimeLeft(settings.feynmanLearnDuration * 60); }
     else setTimeLeft(settings.activeRecallDuration * 60);
   };
-  // Expose stop() to parent (Dashboard) via ref
+
   useImperativeHandle(ref, () => ({ stop: handleStop }));
 
   const handleTreePicked = (id) => {
@@ -218,10 +215,9 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
     : mode === 'active-recall' ? 'from-purple-500 to-pink-600'
     : (sessionColors[sessionType] || 'from-emerald-500 to-teal-600');
 
-  // Guard mode change while timer is running
   const handleModeChangeRequest = (newMode) => {
     if (isRunning) {
-      setPendingMode(newMode); // show warning
+      setPendingMode(newMode); 
     } else {
       setMode(newMode);
     }
@@ -229,7 +225,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
 
   return (
     <div className="space-y-5">
-      {/* Focus Warning */}
+      {}
       {showFocusWarning && settings.enableFocusEnforcement && (
         <div className="bg-amber-500/10 border border-amber-500/40 p-4 rounded-2xl animate-pulse">
           <div className="flex items-center gap-3">
@@ -242,7 +238,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
         </div>
       )}
 
-      {/* Mode Change Guard Modal */}
+      {}
       {pendingMode && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-slate-900 border border-red-500/30 rounded-2xl shadow-2xl w-full max-w-xs p-6 animate-slide-up">
@@ -280,12 +276,12 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
         </div>
       )}
 
-      {/* Mode Carousel */}
+      {}
       <div className="max-w-md mx-auto">
         <ModeCarousel key={carouselKey} currentMode={mode} onModeChange={handleModeChangeRequest} />
       </div>
 
-      {/* Goal Button */}
+      {}
       <div className="flex justify-center">
         <button
           id="btn-goal-selector"
@@ -297,10 +293,10 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
         </button>
       </div>
 
-      {/* Timer Card */}
+      {}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-xl p-6 sm:p-8">
         <div className="flex justify-between items-center mb-2">
-          {/* Flashcard quick-access — top left, active-recall only */}
+          {}
           {mode === 'active-recall' ? (
             <button
               id="btn-open-flashcard"
@@ -329,7 +325,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
           </button>
         </div>
 
-        {/* Session Label */}
+        {}
         <div className="text-center mb-8">
           <div className={`inline-block px-4 py-1.5 rounded-full bg-gradient-to-r ${timerGradient} text-white text-sm font-medium mb-3 shadow-lg`}>
             {getSessionLabel()}
@@ -345,10 +341,10 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
           )}
         </div>
 
-        {/* Timer Display */}
+        {}
         <div className="text-center mb-8">
           <div className="relative inline-block">
-            {/* Ring */}
+            {}
             <svg className="absolute -inset-4 w-[calc(100%+2rem)] h-[calc(100%+2rem)]" viewBox="0 0 200 80" preserveAspectRatio="none">
               <rect x="2" y="2" width="196" height="76" rx="12" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="2" />
             </svg>
@@ -358,14 +354,14 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
           </div>
         </div>
 
-        {/* Focus Animation */}
+        {}
         {isRunning && (sessionType === 'focus' || mode !== 'pomodoro') && (
           <div className="mb-6">
             <FocusAnimation progress={focusProgress} treeType={treeType} />
           </div>
         )}
 
-        {/* Feynman Notes */}
+        {}
         {mode === 'feynman' && feynmanStep === 'explain' && (
           <div className="mb-6">
             <textarea
@@ -377,7 +373,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
           </div>
         )}
 
-        {/* AI Rangkuman — Feynman only (available in all steps) */}
+        {}
         {mode === 'feynman' && treeType && (
           <div className="mb-5">
             <button
@@ -398,7 +394,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
               {showFeynmanAI ? 'Tutup AI Rangkuman' : 'AI Rangkuman Materi'}
             </button>
 
-            {/* Inline FeynmanAI panel */}
+            {}
             {showFeynmanAI && (
               <div className="mt-4 animate-slide-up">
                 <FeynmanAI />
@@ -407,8 +403,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
           </div>
         )}
 
-
-        {/* Controls */}
+        {}
         <div className="flex justify-center gap-3">
           {!isRunning ? (
             <button
@@ -440,10 +435,10 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
         </div>
       </div>
 
-      {/* Music Player */}
+      {}
       <MusicPlayer mode={mode} />
 
-      {/* Modals */}
+      {}
       {showSettings && (
         <SettingsModal
           settings={settings}
@@ -458,7 +453,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
           onClose={() => setShowGoalSelector(false)}
         />
       )}
-      {/* Tree Picker Modal */}
+      {}
       {showTreePicker && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-fade-in">
@@ -499,12 +494,12 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
         </div>
       )}
 
-      {/* FeynmanAI is now rendered inline inside the timer card above */}
+      {}
       {showFlashcard && (
         <FlashcardManager onClose={() => setShowFlashcard(false)} />
       )}
 
-      {/* Focus Detector */}
+      {}
       <FocusDetectorMini
         isActive={isRunning && (sessionType === 'focus' || mode !== 'pomodoro')}
         onDistractionDetected={() => setTabSwitchCount(p => p + 1)}
