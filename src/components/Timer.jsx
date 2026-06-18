@@ -146,9 +146,17 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
         else { setSessionType('short-break'); setTimeLeft(settings.shortBreakDuration * 60); }
       } else { setSessionType('focus'); setTimeLeft(settings.focusDuration * 60); }
     } else if (mode === 'feynman') {
-      if (feynmanStep === 'learn')   { setFeynmanStep('explain'); setTimeLeft(settings.feynmanExplainDuration * 60); }
+      if (feynmanStep === 'learn') { setFeynmanStep('explain'); setTimeLeft(settings.feynmanExplainDuration * 60); }
       else if (feynmanStep === 'explain') { setFeynmanStep('review');  setTimeLeft(settings.feynmanReviewDuration * 60); }
-      else alert('Sesi Feynman selesai! Bagus!');
+      else {
+        saveSession();
+        setIsRunning(false);
+        setFocusProgress(0);
+        setFeynmanStep('learn');
+        setTimeLeft(settings.feynmanLearnDuration * 60);
+        setFeynmanNotes('');
+        setTreeType(null);
+      }
     } else if (mode === 'active-recall') {
       alert('Sesi Active Recall selesai! Bagus!');
     }
@@ -282,16 +290,18 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
       </div>
 
       {}
-      <div className="flex justify-center">
-        <button
-          id="btn-goal-selector"
-          onClick={() => setShowGoalSelector(true)}
-          className="px-6 py-3 bg-slate-800/80 text-emerald-400 rounded-xl border border-slate-700/60 flex items-center gap-2 hover:bg-slate-700/80 hover:border-emerald-500/40 transition-all text-sm font-medium"
-        >
-          <Target className="w-4 h-4" />
-          <span>Apa Tujuan Anda?</span>
-        </button>
-      </div>
+      {!isRunning && (
+        <div className="flex justify-center">
+          <button
+            id="btn-goal-selector"
+            onClick={() => setShowGoalSelector(true)}
+            className="px-6 py-3 bg-slate-800/80 text-emerald-400 rounded-xl border border-slate-700/60 flex items-center gap-2 hover:bg-slate-700/80 hover:border-emerald-500/40 transition-all text-sm font-medium"
+          >
+            <Target className="w-4 h-4" />
+            <span>Apa Tujuan Anda?</span>
+          </button>
+        </div>
+      )}
 
       {}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-xl p-6 sm:p-8">
@@ -362,7 +372,7 @@ const Timer = forwardRef(function Timer({ onRunningChange }, ref) {
         )}
 
         {}
-        {mode === 'feynman' && feynmanStep === 'explain' && (
+        {mode === 'feynman' && feynmanStep === 'explain' && isRunning && (
           <div className="mb-6">
             <textarea
               value={feynmanNotes}

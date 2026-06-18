@@ -205,7 +205,6 @@ function ReminderForm({ initial, onSave, onCancel }) {
         {initial ? 'Edit Pengingat' : 'Pengingat Baru'}
       </h3>
 
-      {
       <div>
         <label className="block text-slate-400 text-xs mb-3">Waktu Pengingat</label>
         <div className="flex items-start justify-center gap-3">
@@ -220,7 +219,6 @@ function ReminderForm({ initial, onSave, onCancel }) {
         </p>
       </div>
 
-      {
       <div>
         <label className="block text-slate-400 text-xs mb-1.5">Pesan Pengingat</label>
         <input
@@ -233,7 +231,6 @@ function ReminderForm({ initial, onSave, onCancel }) {
         />
       </div>
 
-      {
       <div>
         <label className="block text-slate-400 text-xs mb-2">Suara Alarm</label>
         <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={handleFileUpload} />
@@ -275,7 +272,6 @@ function ReminderForm({ initial, onSave, onCancel }) {
         </button>
       </div>
 
-      {
       <div className="flex gap-3">
         <button
           type="button"
@@ -348,7 +344,6 @@ export default function Reminder() {
   return (
     <div className="space-y-4">
 
-      {
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
         <div className="flex items-start gap-4 mb-4">
           <div className="w-11 h-11 bg-emerald-500/20 rounded-xl flex items-center justify-center shrink-0">
@@ -392,17 +387,14 @@ export default function Reminder() {
         )}
       </div>
 
-      {
       {showForm && (
         <ReminderForm onSave={handleAdd} onCancel={() => setShowForm(false)} />
       )}
 
-      {
       {editId && editingReminder && (
         <ReminderForm initial={editingReminder} onSave={handleEdit} onCancel={() => setEditId(null)} />
       )}
 
-      {
       <div className="space-y-3">
         {reminders.map(r => {
           const TIcon = getIcon(r.time);
@@ -457,7 +449,6 @@ export default function Reminder() {
         })}
       </div>
 
-      {
       {!showForm && !editId && (
         <button id="btn-add-reminder" onClick={() => setShowForm(true)}
           className="w-full px-5 py-4 bg-slate-800/30 border-2 border-dashed border-slate-600 text-slate-400 rounded-xl hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-slate-800/50 transition-all flex items-center justify-center gap-2 text-sm">
@@ -465,7 +456,6 @@ export default function Reminder() {
         </button>
       )}
 
-      {
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
         <h3 className="text-white font-semibold mb-3">💡 Tips</h3>
         <ul className="space-y-1.5 text-slate-400 text-sm">

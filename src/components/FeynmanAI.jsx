@@ -210,7 +210,6 @@ export default function FeynmanAI() {
 
   return (
     <div>
-      {
       <div style={{ marginBottom: '20px' }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: '10px',
@@ -239,7 +238,6 @@ export default function FeynmanAI() {
         </div>
       </div>
 
-      {
       <div
         style={{
           ...S.section,
@@ -283,7 +281,6 @@ export default function FeynmanAI() {
         </p>
       </div>
 
-      {
       {error && (
         <div style={{
           background: 'rgba(239,68,68,0.08)',
@@ -298,7 +295,6 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {
       {files.length > 0 && (
         <div style={{ marginBottom: '16px' }}>
           <p style={{ ...S.label }}>
@@ -356,7 +352,6 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {
       {files.length > 0 && !loading && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
           {}
@@ -415,7 +410,6 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {
       {loading && (
         <div style={{
           background: 'rgba(6,182,212,0.05)',
@@ -441,7 +435,6 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {
       {result && !loading && (
         <div style={{
           background: 'rgba(255,255,255,0.03)',
@@ -514,7 +507,6 @@ export default function FeynmanAI() {
         </div>
       )}
 
-      {
       {(files.length > 0 || result) && !loading && (
         <button
           onClick={handleReset}

@@ -178,7 +178,6 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
   return (
     <div className="fixed bottom-20 right-4 z-40">
 
-      {
       {isMinimized ? (
         <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-3 shadow-2xl">
           <div className="flex items-center gap-2">
@@ -289,45 +288,8 @@ export default function FocusDetectorMini({ isActive, onFocusChange, onDistracti
               </div>
             )}
           </div>
-
-          {}
-          <div className="px-4 pb-3">
-            <button
-              onClick={isEnabled ? stopDetection : startDetection}
-              className={`w-full py-2 px-3 rounded-xl text-xs font-medium transition-all ${
-                isEnabled
-                  ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
-                  : 'bg-gradient-to-br from-purple-500 to-pink-600 text-white hover:shadow-lg'
-              }`}
-            >
-              {isEnabled ? (
-                <span className="flex items-center justify-center gap-1.5"><CameraOff className="w-3.5 h-3.5" /> Stop</span>
-              ) : (
-                <span className="flex items-center justify-center gap-1.5"><Camera className="w-3.5 h-3.5" /> Aktifkan</span>
-              )}
-            </button>
-          </div>
-
-          {}
-          <div className="px-4 pb-4">
-            {backendOnline === false ? (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-2">
-                <p className="text-red-300/80 text-[10px] text-center">⚠ Backend offline – mode fallback aktif</p>
-              </div>
-            ) : backendOnline === true ? (
-              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2">
-                <p className="text-emerald-300/80 text-[10px] text-center">🟢 YOLO backend tersambung</p>
-              </div>
-            ) : (
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-2">
-                <p className="text-blue-300/80 text-[10px] text-center">🔒 Data diproses lokal di browser</p>
-              </div>
-            )}
-          </div>
-
         </div>
       )}
     </div>
   );
 }
-

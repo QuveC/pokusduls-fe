@@ -55,7 +55,7 @@ const AIPage = () => {
   useEffect(() => { scrollToBottom(); }, [messages, isTyping]);
 
   const fetchFromN8n = async (textInput) => {
-    const N8N_WEBHOOK_URL = 'https:
+    const N8N_WEBHOOK_URL = 'https://flounder-scarce-litter.ngrok-free.dev/webhook/study_assist';
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: {
@@ -109,7 +109,6 @@ const AIPage = () => {
       height: 'calc(100vh - 130px)',
       maxHeight: '700px',
     }}>
-      {
       <div style={{
         background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 100%)',
         border: '1px solid rgba(16,185,129,0.2)',
@@ -173,7 +172,6 @@ const AIPage = () => {
         )}
       </div>
 
-      {
       <div style={{
         flex: 1,
         overflowY: 'auto',
@@ -327,7 +325,6 @@ const AIPage = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {
       <div style={{
         borderTop: '1px solid rgba(255,255,255,0.07)',
         paddingTop: '16px',

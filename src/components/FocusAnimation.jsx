@@ -323,7 +323,6 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
           background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.05), transparent 70%)',
         }} />
 
-        {
         <div style={{
           position: 'absolute',
           bottom: 88,   
@@ -337,7 +336,6 @@ export default function FocusAnimation({ progress, treeType = 'oak' }) {
           <TreeComponent progress={p} />
         </div>
 
-        {
         <div style={{
           position: 'absolute',
           bottom: 30,   
